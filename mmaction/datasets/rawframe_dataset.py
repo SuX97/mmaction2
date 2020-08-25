@@ -5,8 +5,8 @@ import numpy as np
 import torch
 from mmcv.utils import print_log
 
-from ..core import mean_average_precision, mean_class_accuracy#, top_k_accuracy
-from ..core.evaluation.accuracy import *
+from ..core import (mean_average_precision, mean_class_accuracy,
+                    precision_recall, top_k_accuracy)
 from .base import BaseDataset
 from .registry import DATASETS
 
@@ -73,40 +73,30 @@ class RawframeDataset(BaseDataset):
 
     def load_annotations(self):
         video_infos = []
-        label_correlations = np.loadtxt('./annos/normed_coherence.txt')
+        label_correlations = np.loadtxt('./data/normed_coherence.txt')
         with open(self.ann_file, 'r') as fin:
             # cnt = 1
             for line in fin:
                 line_split = line.strip().split(' ')
                 if self.multi_class:
                     assert self.num_classes is not None
-                    # (frame_dir, total_frames,
-                    #  label) = (line_split[0], line_split[1], line_split[2:])
-                    frame_dir, total_frames, label = ' '.join(line_split[:-2]), line_split[-2], line_split[-1].split(',')
+                    frame_dir, total_frames, label = ' '.join(
+                        line_split[:-2]), line_split[-2], line_split[-1].split(
+                            ',')
                     label = list(map(int, label))
-                    # onehot = torch.zeros(self.num_classes, dtype=torch.float)#,dtype=torch.long
-                    # flag = [True if l > 45 else False for l in label]\
-                    # cnt += 1
-                    # soft_labels = False
                     soft_labels = True
                     if not self.test_mode and soft_labels:
-                        correlation = np.average(label_correlations[label, :], axis=0)
-                        # print(correlation.shape)
+                        correlation = np.average(
+                            label_correlations[label, :], axis=0)
                         onehot = torch.tensor(correlation, dtype=torch.float)
                     else:
-                        onehot = torch.zeros(self.num_classes, dtype=torch.float)
+                        onehot = torch.zeros(
+                            self.num_classes, dtype=torch.float)
                     onehot[label] = 1
-                    # print(label)
-                    # print('*'*30)
-                    # print(label_correlations[label, :])
-                    # print('*'*30)
-                    # print(correlation)
-                    # print('*'*30)
-                    # exit()
                 else:
-                    # frame_dir, total_frames, label = ' '.join(line_split[:-2]), line_split[-2], line_split[-1]#.split(',')
-                    # label = int(label[0])
-                    frame_dir, total_frames, label = ' '.join(line_split[:-2]), line_split[-2], line_split[-1].split(',')
+                    frame_dir, total_frames, label = ' '.join(
+                        line_split[:-2]), line_split[-2], line_split[-1].split(
+                            ',')
                     label = int(label)
                 if self.data_prefix is not None:
                     frame_dir = osp.join(self.data_prefix, frame_dir)
@@ -129,7 +119,7 @@ class RawframeDataset(BaseDataset):
 
     def evaluate(self,
                  results,
-                 metrics='personal_PR',
+                 metrics='top_k_accuracy',
                  topk=(1, 5),
                  logger=None):
         """Evaluation in rawframe dataset.
@@ -161,11 +151,11 @@ class RawframeDataset(BaseDataset):
             topk = (topk, )
 
         metrics = metrics if isinstance(metrics, (list, tuple)) else [metrics]
-        # allowed_metrics = [
-        #      'personal_PR'#'top_k_accuracy',  'mean_class_accuracy', 'mean_average_precision',
-        # ]
         allowed_metrics = [
-             'precision_recall'#'top_k_accuracy',  'mean_class_accuracy', 'mean_average_precision',
+            'precision_recall',
+            'top_k_accuracy',
+            'mean_class_accuracy',
+            'mean_average_precision',
         ]
         for metric in metrics:
             if metric not in allowed_metrics:
@@ -180,15 +170,15 @@ class RawframeDataset(BaseDataset):
                 msg = '\n' + msg
             print_log(msg, logger=logger)
 
-            # if metric == 'top_k_accuracy':
-            #     top_k_acc = top_k_accuracy(results, gt_labels, topk)
-            #     log_msg = []
-            #     for k, acc in zip(topk, top_k_acc):
-            #         eval_results[f'top{k}_acc'] = acc
-            #         log_msg.append(f'\ntop{k}_acc\t{acc:.4f}')
-            #     log_msg = ''.join(log_msg)
-            #     print_log(log_msg, logger=logger)
-            #     continue
+            if metric == 'top_k_accuracy':
+                top_k_acc = top_k_accuracy(results, gt_labels, topk)
+                log_msg = []
+                for k, acc in zip(topk, top_k_acc):
+                    eval_results[f'top{k}_acc'] = acc
+                    log_msg.append(f'\ntop{k}_acc\t{acc:.4f}')
+                log_msg = ''.join(log_msg)
+                print_log(log_msg, logger=logger)
+                continue
 
             if metric == 'mean_class_accuracy':
                 mean_acc = mean_class_accuracy(results, gt_labels)
@@ -198,27 +188,13 @@ class RawframeDataset(BaseDataset):
                 continue
 
             if metric == 'precision_recall':
-                # print(len(results))
-                # print(len(gt_labels))
-                # exit()
                 precision, recall = precision_recall(results, gt_labels)
-                # print('*'*30)
-                # print(P)
-                # print('*'*30)
-                # exit()
                 eval_results['precision'] = precision
                 eval_results['recall'] = recall
                 log_msg = f'precision\t{precision}'
                 print_log(log_msg, logger=logger)
                 log_msg = f'recall\t{recall}'
                 print_log(log_msg, logger=logger)
-                # num_classes = 46-14
-                # sum_precision = np.sum(np.nan_to_num(precision))
-                # log_msg = f'mean precision\t{}'
-                # print_log(log_msg, logger=logger)
-                # sum_recall = np.sum(np.nan_to_num(recall))
-                # log_msg = f'mean recall\t{sum_recall//num_classes}'
-                # print_log(log_msg, logger=logger)
                 continue
 
             if metric == 'mean_average_precision':
@@ -230,5 +206,3 @@ class RawframeDataset(BaseDataset):
                 continue
 
         return eval_results
-
-

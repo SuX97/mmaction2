@@ -3,7 +3,7 @@ import os.path as osp
 import torch
 from mmcv.utils import print_log
 
-from ..core import mean_class_accuracy, top_k_accuracy, precision_recall
+from ..core import mean_class_accuracy, precision_recall, top_k_accuracy
 from .base import BaseDataset
 from .registry import DATASETS
 
@@ -28,25 +28,36 @@ class VideoDataset(BaseDataset):
         some/path/004.mp4 3
         some/path/005.mp4 3
 
+
+    Args:
+        ann_file (str): Path to the annotation file.
+        pipeline (list[dict | callable]): A sequence of data transforms.
+        start_index (int): Specify a start index for frames in consideration of
+            different filename format. However, when taking videos as input,
+            it should be set to 0, since frames loaded from videos count
+            from 0. Default: 0.
+        **kwargs: Keyword arguments for ``BaseDataset``.
     """
 
+    def __init__(self, ann_file, pipeline, start_index=0, **kwargs):
+        super().__init__(ann_file, pipeline, start_index=start_index, **kwargs)
+
     def load_annotations(self):
+        """Load annotation file to get video information."""
         video_infos = []
         with open(self.ann_file, 'r') as fin:
             for line in fin:
                 line_split = line.strip().split(' ')
                 if self.multi_class:
                     assert self.num_classes is not None
-                    # filename, label = line_split[0], line_split[1:]
-                    # label = list(map(int, label))
-                    # onehot = torch.zeros(self.num_classes)
-                    # onehot[label] = 1.0
-                    filename, label = ' '.join(line_split[:-1]), line_split[-1].split(',')
+                    filename, label = ' '.join(
+                        line_split[:-1]), line_split[-1].split(',')
                     label = list(map(int, label))
-                    onehot = torch.zeros(self.num_classes,dtype=torch.float)#,dtype=torch.long
+                    onehot = torch.zeros(self.num_classes, dtype=torch.float)
                     onehot[label] = 1.0
                 else:
-                    filename, label = ' '.join(line_split[:-1]), line_split[-1].split(',')#, line_split[-1]
+                    filename, label = ' '.join(
+                        line_split[:-1]), line_split[-1].split(',')
                     label = int(label)
                 if self.data_prefix is not None:
                     filename = osp.join(self.data_prefix, filename)
@@ -55,7 +66,6 @@ class VideoDataset(BaseDataset):
                         filename=filename,
                         label=onehot if self.multi_class else label))
         return video_infos
-
 
     def evaluate(self,
                  results,
@@ -75,7 +85,7 @@ class VideoDataset(BaseDataset):
                 Default: None.
 
         Return:
-            eval_results (dict): Evaluation results dict.
+            dict: Evaluation results dict.
         """
         if not isinstance(results, list):
             raise TypeError(f'results must be a list, but got {type(results)}')
@@ -88,7 +98,9 @@ class VideoDataset(BaseDataset):
                 f'topk must be int or tuple of int, but got {type(topk)}')
 
         metrics = metrics if isinstance(metrics, (list, tuple)) else [metrics]
-        allowed_metrics = ['top_k_accuracy', 'mean_class_accuracy', 'precision_recall']
+        allowed_metrics = [
+            'top_k_accuracy', 'mean_class_accuracy', 'precision_recall'
+        ]
         for metric in metrics:
             if metric not in allowed_metrics:
                 raise KeyError(f'metric {metric} is not supported')
@@ -120,13 +132,6 @@ class VideoDataset(BaseDataset):
                 print_log(log_msg, logger=logger)
                 log_msg = f'recall\t{recall}'
                 print_log(log_msg, logger=logger)
-                # num_classes = 46-14
-                # sum_precision = np.sum(np.nan_to_num(precision))
-                # log_msg = f'mean precision\t{}'
-                # print_log(log_msg, logger=logger)
-                # sum_recall = np.sum(np.nan_to_num(recall))
-                # log_msg = f'mean recall\t{sum_recall//num_classes}'
-                # print_log(log_msg, logger=logger)
                 continue
 
             if metric == 'mean_class_accuracy':
