@@ -1,10 +1,12 @@
 import copy
 import os.path as osp
 
+import numpy as np
 import torch
 from mmcv.utils import print_log
 
-from ..core import mean_average_precision, mean_class_accuracy, top_k_accuracy
+from ..core import mean_average_precision, mean_class_accuracy#, top_k_accuracy
+from ..core.evaluation.accuracy import *
 from .base import BaseDataset
 from .registry import DATASETS
 
@@ -42,21 +44,6 @@ class RawframeDataset(BaseDataset):
         some/directory-5 295 3
         some/directory-6 121 3
 
-    Example of a with_offset annotation file (clips from long videos), each
-    line indicates the directory to frames of a video, the index of the start
-    frame, total frames of the video clip and the label of a video clip, which
-    are split with a whitespace.
-
-
-    .. code-block:: txt
-
-        some/directory-1 12 163 3
-        some/directory-2 213 122 4
-        some/directory-3 100 258 5
-        some/directory-4 98 234 2
-        some/directory-5 0 295 3
-        some/directory-6 50 121 3
-
 
     Args:
         ann_file (str): Path to the annotation file.
@@ -67,13 +54,9 @@ class RawframeDataset(BaseDataset):
             Default: False.
         filename_tmpl (str): Template for each filename.
             Default: 'img_{:05}.jpg'.
-        with_offset (bool): Determines whether the offset information is in
-            ann_file. Default: False.
         multi_class (bool): Determines whether it is a multi-class
             recognition dataset. Default: False.
         num_classes (int): Number of classes in the dataset. Default: None.
-        modality (str): Modality of data. Support 'RGB', 'Flow'.
-                            Default: 'RGB'.
     """
 
     def __init__(self,
@@ -81,74 +64,72 @@ class RawframeDataset(BaseDataset):
                  pipeline,
                  data_prefix=None,
                  test_mode=False,
-                 filename_tmpl='img_{:05}.jpg',
-                 with_offset=False,
-                 multi_class=False,
-                 num_classes=None,
-                 start_index=1,
-                 modality='RGB'):
-        self.filename_tmpl = filename_tmpl
-        self.with_offset = with_offset
+                 filename_tmpl='{:06}.jpg',
+                 multi_class=True,
+                 num_classes=400):
         super().__init__(ann_file, pipeline, data_prefix, test_mode,
-                         multi_class, num_classes, start_index, modality)
+                         multi_class, num_classes)
+        self.filename_tmpl = filename_tmpl
 
     def load_annotations(self):
-        """Load annotation file to get video information."""
         video_infos = []
+        label_correlations = np.loadtxt('./annos/normed_coherence.txt')
         with open(self.ann_file, 'r') as fin:
+            # cnt = 1
             for line in fin:
-                line_split = line.strip().split()
-                video_info = {}
-                idx = 0
-                # idx for frame_dir
-                frame_dir = line_split[idx]
-                if self.data_prefix is not None:
-                    frame_dir = osp.join(self.data_prefix, frame_dir)
-                video_info['frame_dir'] = frame_dir
-                idx += 1
-                if self.with_offset:
-                    # idx for offset and total_frames
-                    video_info['offset'] = int(line_split[idx])
-                    video_info['total_frames'] = int(line_split[idx + 1])
-                    idx += 2
-                else:
-                    # idx for total_frames
-                    video_info['total_frames'] = int(line_split[idx])
-                    idx += 1
-                # idx for label[s]
-                label = [int(x) for x in line_split[idx:]]
-                assert len(label), f'missing label in line: {line}'
+                line_split = line.strip().split(' ')
                 if self.multi_class:
                     assert self.num_classes is not None
-                    onehot = torch.zeros(self.num_classes)
-                    onehot[label] = 1.0
-                    video_info['label'] = onehot
+                    # (frame_dir, total_frames,
+                    #  label) = (line_split[0], line_split[1], line_split[2:])
+                    frame_dir, total_frames, label = ' '.join(line_split[:-2]), line_split[-2], line_split[-1].split(',')
+                    label = list(map(int, label))
+                    # onehot = torch.zeros(self.num_classes, dtype=torch.float)#,dtype=torch.long
+                    # flag = [True if l > 45 else False for l in label]\
+                    # cnt += 1
+                    # soft_labels = False
+                    soft_labels = True
+                    if not self.test_mode and soft_labels:
+                        correlation = np.average(label_correlations[label, :], axis=0)
+                        # print(correlation.shape)
+                        onehot = torch.tensor(correlation, dtype=torch.float)
+                    else:
+                        onehot = torch.zeros(self.num_classes, dtype=torch.float)
+                    onehot[label] = 1
+                    # print(label)
+                    # print('*'*30)
+                    # print(label_correlations[label, :])
+                    # print('*'*30)
+                    # print(correlation)
+                    # print('*'*30)
+                    # exit()
                 else:
-                    assert len(label) == 1
-                    video_info['label'] = label[0]
-                video_infos.append(video_info)
-
+                    # frame_dir, total_frames, label = ' '.join(line_split[:-2]), line_split[-2], line_split[-1]#.split(',')
+                    # label = int(label[0])
+                    frame_dir, total_frames, label = ' '.join(line_split[:-2]), line_split[-2], line_split[-1].split(',')
+                    label = int(label)
+                if self.data_prefix is not None:
+                    frame_dir = osp.join(self.data_prefix, frame_dir)
+                video_infos.append(
+                    dict(
+                        frame_dir=frame_dir,
+                        total_frames=int(total_frames),
+                        label=onehot if self.multi_class else label))
         return video_infos
 
     def prepare_train_frames(self, idx):
-        """Prepare the frames for training given the index."""
         results = copy.deepcopy(self.video_infos[idx])
         results['filename_tmpl'] = self.filename_tmpl
-        results['modality'] = self.modality
-        results['start_index'] = self.start_index
         return self.pipeline(results)
 
     def prepare_test_frames(self, idx):
-        """Prepare the frames for testing given the index."""
         results = copy.deepcopy(self.video_infos[idx])
         results['filename_tmpl'] = self.filename_tmpl
-        results['modality'] = self.modality
-        results['start_index'] = self.start_index
         return self.pipeline(results)
 
     def evaluate(self,
                  results,
-                 metrics='top_k_accuracy',
+                 metrics='personal_PR',
                  topk=(1, 5),
                  logger=None):
         """Evaluation in rawframe dataset.
@@ -163,10 +144,9 @@ class RawframeDataset(BaseDataset):
             logger (logging.Logger | None): Logger for recording.
                 Default: None.
 
-        Returns:
-            dict: Evaluation results dict.
+        return:
+            eval_results (dict): Evaluation results dict.
         """
-
         if not isinstance(results, list):
             raise TypeError(f'results must be a list, but got {type(results)}')
         assert len(results) == len(self), (
@@ -181,8 +161,11 @@ class RawframeDataset(BaseDataset):
             topk = (topk, )
 
         metrics = metrics if isinstance(metrics, (list, tuple)) else [metrics]
+        # allowed_metrics = [
+        #      'personal_PR'#'top_k_accuracy',  'mean_class_accuracy', 'mean_average_precision',
+        # ]
         allowed_metrics = [
-            'top_k_accuracy', 'mean_class_accuracy', 'mean_average_precision'
+             'precision_recall'#'top_k_accuracy',  'mean_class_accuracy', 'mean_average_precision',
         ]
         for metric in metrics:
             if metric not in allowed_metrics:
@@ -197,21 +180,45 @@ class RawframeDataset(BaseDataset):
                 msg = '\n' + msg
             print_log(msg, logger=logger)
 
-            if metric == 'top_k_accuracy':
-                top_k_acc = top_k_accuracy(results, gt_labels, topk)
-                log_msg = []
-                for k, acc in zip(topk, top_k_acc):
-                    eval_results[f'top{k}_acc'] = acc
-                    log_msg.append(f'\ntop{k}_acc\t{acc:.4f}')
-                log_msg = ''.join(log_msg)
-                print_log(log_msg, logger=logger)
-                continue
+            # if metric == 'top_k_accuracy':
+            #     top_k_acc = top_k_accuracy(results, gt_labels, topk)
+            #     log_msg = []
+            #     for k, acc in zip(topk, top_k_acc):
+            #         eval_results[f'top{k}_acc'] = acc
+            #         log_msg.append(f'\ntop{k}_acc\t{acc:.4f}')
+            #     log_msg = ''.join(log_msg)
+            #     print_log(log_msg, logger=logger)
+            #     continue
 
             if metric == 'mean_class_accuracy':
                 mean_acc = mean_class_accuracy(results, gt_labels)
                 eval_results['mean_class_accuracy'] = mean_acc
                 log_msg = f'\nmean_acc\t{mean_acc:.4f}'
                 print_log(log_msg, logger=logger)
+                continue
+
+            if metric == 'precision_recall':
+                # print(len(results))
+                # print(len(gt_labels))
+                # exit()
+                precision, recall = precision_recall(results, gt_labels)
+                # print('*'*30)
+                # print(P)
+                # print('*'*30)
+                # exit()
+                eval_results['precision'] = precision
+                eval_results['recall'] = recall
+                log_msg = f'precision\t{precision}'
+                print_log(log_msg, logger=logger)
+                log_msg = f'recall\t{recall}'
+                print_log(log_msg, logger=logger)
+                # num_classes = 46-14
+                # sum_precision = np.sum(np.nan_to_num(precision))
+                # log_msg = f'mean precision\t{}'
+                # print_log(log_msg, logger=logger)
+                # sum_recall = np.sum(np.nan_to_num(recall))
+                # log_msg = f'mean recall\t{sum_recall//num_classes}'
+                # print_log(log_msg, logger=logger)
                 continue
 
             if metric == 'mean_average_precision':
@@ -223,3 +230,5 @@ class RawframeDataset(BaseDataset):
                 continue
 
         return eval_results
+
+
