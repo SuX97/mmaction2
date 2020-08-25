@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-# coding: utf-8
-
 import numpy as np
-import torch
-#import torchsnooper
-import json
 
 
 def confusion_matrix(y_pred, y_real):
@@ -36,7 +30,7 @@ def confusion_matrix(y_pred, y_real):
             f'y_real dtype must be np.int64, but got {y_real.dtype}')
 
     label_set = np.unique(np.concatenate((y_pred, y_real)))
-    print('label_set',label_set)
+    print('label_set', label_set)
     num_labels = len(label_set)
     label_map = {label: i for i, label in enumerate(label_set)}
     confusion_mat = np.zeros((num_labels, num_labels), dtype=np.int64)
@@ -48,7 +42,6 @@ def confusion_matrix(y_pred, y_real):
     return confusion_mat
 
 
-#@torchsnooper.snoop()
 def mean_class_accuracy(scores, labels):
     """Calculate mean class accuracy.
 
@@ -59,7 +52,7 @@ def mean_class_accuracy(scores, labels):
     Returns:
         np.ndarray: Mean class accuracy.
     """
-    
+
     pred = np.argmax(scores, axis=1)
     cf = confusion_matrix(pred, labels).astype(float)
 
@@ -71,48 +64,9 @@ def mean_class_accuracy(scores, labels):
 
     return mean_class_acc
 
-#@torchsnooper.snoop()
-def personal_PR(scores, labels):
-    """Calculate Percision/Recall.
-       Save scores and labels.
 
-    Args:
-        scores (list[np.ndarray]): Prediction prob not scores for each class.
-        labels (list[int]): Ground truth labels.
-
-    Returns:
-        np.ndarray: Percision for each class.
-        np.ndarray: Recall for each class.
-        np.ndarray: Mean class Percision.
-        np.ndarray: Mean class Recall.
-    """
-    np.save("prob_scores_raw.npy",scores)
-    for i in range(len(labels)):
-        labels[i] = labels[i].numpy().tolist()
-    y_true = np.array(labels)
-    np.save("prob_y_true.npy",y_true)
-    # top1 , get y_pred
-    pred = np.argmax(scores, axis=1)
-    y_pred = np.zeros_like(scores)
-    for i in range(len(pred)):
-        y_pred[i,pred[i]] = 1
-    TP = np.sum(np.logical_and(np.equal(y_true, 1), np.equal(y_pred, 1)),axis=0) 
-    FP = np.sum(np.logical_and(np.equal(y_true, 0), np.equal(y_pred, 1)),axis=0)  
-    FN = np.sum(np.logical_and(np.equal(y_true, 1), np.equal(y_pred, 0)),axis=0)  
-    P=TP/(TP+FP)
-    R=TP/(TP+FN)
-    TP = np.sum(np.logical_and(np.equal(y_true, 1), np.equal(y_pred, 1))) 
-    FP = np.sum(np.logical_and(np.equal(y_true, 0), np.equal(y_pred, 1)))  
-    FN = np.sum(np.logical_and(np.equal(y_true, 1), np.equal(y_pred, 0))) 
-    total_P=TP/(TP+FP) 
-    total_R=TP/(TP+FN) 
-    return P, R, total_P, total_R
-
-
-#@torchsnooper.snoop()
 def precision_recall(scores, targets, threshold=0.5, byclass=False):
-    """Calculate Percision/Recall.
-       Save scores and labels.
+    """Calculate Percision/Recall. Save scores and labels.
 
     Args:
         scores (list[np.ndarray]): Prediction prob not scores for each class.
@@ -122,53 +76,29 @@ def precision_recall(scores, targets, threshold=0.5, byclass=False):
         np.ndarray: Percision for each class.
         np.ndarray: Recall for each class.
     """
-    # np.save("prob_scores_raw.npy",scores)
     for i in range(len(targets)):
         targets[i] = targets[i].numpy().tolist()
     for i in range(len(scores)):
         scores[i] = scores[i].tolist()
-    # missing_lables = set([7, 10, 11, 15, 21, 25, 26, 30, 32, 33, 41, 45])
-    # existing_labels = list(set([i for i in range(46)]) - missing_lables)
-    # targets = np.array(targets)[:, existing_labels]
-    # y_score = np.array(scores)[:, existing_labels]
     targets = np.array(targets)
     y_score = np.array(scores)
-    np.save("targets.npy",targets)
-    np.save("raw_scores.npy",y_score)
-    # print(targets.shape)
-    # print(y_score.shape)
-    # exit()
     if not byclass:
         targets = targets.reshape(-1, 1)
         y_score = y_score.reshape(-1, 1)
     y_score = 1 / (1 + np.exp(-y_score))
-    # threshold = 0.5
     y_score[y_score >= threshold] = 1
     y_score[y_score < threshold] = 0
     y_score = y_score.astype(int)
     targets = targets.astype(int)
     positive_pred = np.sum(y_score, axis=0)
     sum_scores = (y_score + targets) == 2
-    # print(sum_scores[:5])
     true_positive = np.sum(sum_scores, axis=0)
     true = np.sum(targets, axis=0)
     # print(sum_scores)
     precision = true_positive / positive_pred
     recall = true_positive / true
-    # print(precision)
-    # print(recall)
-    # num_nan_precision = np.sum(np.isnan(positive_pred))
-    # num_nan_recall = 
-    # new_precision = np.nan_to_num(precision)
-    # mean_precision = precision
-    # recall = np.isnan()
-    # new_recall = np.nan_to_num(recall)
-    
-    # np.save("oppo_precision.npy",precision)
-    np.savetxt("oppo_precision_test.txt", precision)
-    # np.save("oppo_recall.npy",recall)
-    np.savetxt("oppo_recall_test.txt", recall)
-    return precision.tolist()[0], recall.tolist()[0]
+
+    return precision, recall
 
 
 def top_k_accuracy(scores, labels, topk=(1, )):
@@ -182,15 +112,15 @@ def top_k_accuracy(scores, labels, topk=(1, )):
     Returns:
         list[float]: Top k accuracy score for each k.
     """
-    # res = []
-    # labels = np.array(labels)[:, np.newaxis]
-    # for k in topk:
-    #     max_k_preds = np.argsort(scores, axis=1)[:, -k:][:, ::-1]
-    #     match_array = np.logical_or.reduce(max_k_preds == labels, axis=1)
-    #     topk_acc_score = match_array.sum() / match_array.shape[0]
-    #     res.append(topk_acc_score)
+    res = []
+    labels = np.array(labels)[:, np.newaxis]
+    for k in topk:
+        max_k_preds = np.argsort(scores, axis=1)[:, -k:][:, ::-1]
+        match_array = np.logical_or.reduce(max_k_preds == labels, axis=1)
+        topk_acc_score = match_array.sum() / match_array.shape[0]
+        res.append(topk_acc_score)
 
-    return [0.5,0.5]#res
+    return res
 
 
 def mean_average_precision(scores, labels):
@@ -297,8 +227,8 @@ def average_recall_at_avg_proposals(ground_truth,
                                     max_avg_proposals=None,
                                     temporal_iou_thresholds=np.linspace(
                                         0.5, 0.95, 10)):
-    """Computes the average recall given an average number (percentile)
-    of proposals per video.
+    """Computes the average recall given an average number (percentile) of
+    proposals per video.
 
     Args:
         ground_truth (dict): Dict containing the ground truth instances.
