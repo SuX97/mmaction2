@@ -66,14 +66,18 @@ class RawframeDataset(BaseDataset):
                  test_mode=False,
                  filename_tmpl='{:06}.jpg',
                  multi_class=True,
+                 with_offset=False,
+                 modality='RGB',
+                 start_index=1,
                  num_classes=400):
+        self.filename_tmpl = filename_tmpl
+        self.with_offset = with_offset
         super().__init__(ann_file, pipeline, data_prefix, test_mode,
                          multi_class, num_classes)
-        self.filename_tmpl = filename_tmpl
 
     def load_annotations(self):
         video_infos = []
-        label_correlations = np.loadtxt('./data/normed_coherence.txt')
+        label_correlations = np.loadtxt('./data/dynamic/normed_coherence.txt')
         with open(self.ann_file, 'r') as fin:
             # cnt = 1
             for line in fin:
@@ -110,11 +114,15 @@ class RawframeDataset(BaseDataset):
     def prepare_train_frames(self, idx):
         results = copy.deepcopy(self.video_infos[idx])
         results['filename_tmpl'] = self.filename_tmpl
+        results['modality'] = self.modality
+        results['start_index'] = self.start_index
         return self.pipeline(results)
 
     def prepare_test_frames(self, idx):
         results = copy.deepcopy(self.video_infos[idx])
         results['filename_tmpl'] = self.filename_tmpl
+        results['modality'] = self.modality
+        results['start_index'] = self.start_index
         return self.pipeline(results)
 
     def evaluate(self,

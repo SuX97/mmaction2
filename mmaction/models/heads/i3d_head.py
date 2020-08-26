@@ -25,8 +25,9 @@ class I3DHead(BaseHead):
                  loss_cls=dict(type='CrossEntropyLoss'),
                  spatial_type='avg',
                  dropout_ratio=0.5,
-                 init_std=0.01):
-        super().__init__(num_classes, in_channels, loss_cls)
+                 init_std=0.01,
+                 **kwargs):
+        super().__init__(num_classes, in_channels, loss_cls, **kwargs)
 
         self.spatial_type = spatial_type
         self.dropout_ratio = dropout_ratio

@@ -1,5 +1,6 @@
 import copy
 import os.path as osp
+import random
 from abc import ABCMeta, abstractmethod
 
 import mmcv
@@ -86,18 +87,32 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
         return mmcv.dump(results, out)
 
     def prepare_train_frames(self, idx):
-        """Prepare the frames for training given the index."""
-        results = copy.deepcopy(self.video_infos[idx])
-        results['modality'] = self.modality
-        results['start_index'] = self.start_index
-        return self.pipeline(results)
+        # results = copy.deepcopy(self.video_infos[idx])
+        # return self.pipeline(results)
+        while True:
+            try:
+                results = copy.deepcopy(self.video_infos[idx])
+                return self.pipeline(results)
+            except BaseException:
+                f = open('error_videos.txt', 'a+')
+                print(f'{results["filename"]} can not find.')
+                f.write(results['filename'])
+                f.write('\n')
+                f.close()
+                idx = random.randint(0, len(self.video_infos))
 
     def prepare_test_frames(self, idx):
-        """Prepare the frames for testing given the index."""
-        results = copy.deepcopy(self.video_infos[idx])
-        results['modality'] = self.modality
-        results['start_index'] = self.start_index
-        return self.pipeline(results)
+        while True:
+            try:
+                results = copy.deepcopy(self.video_infos[idx])
+                return self.pipeline(results)
+            except BaseException:
+                f = open('error_videos.txt', 'w+')
+                print(results['filename'])
+                f.write(results['filename'])
+                f.write('\n')
+                f.close()
+                idx = random.randint(0, len(self.video_infos))
 
     def __len__(self):
         """Get the size of the dataset."""

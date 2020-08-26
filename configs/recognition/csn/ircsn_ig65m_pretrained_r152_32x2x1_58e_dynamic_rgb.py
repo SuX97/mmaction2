@@ -5,7 +5,7 @@ model = dict(
         type='ResNet3dCSN',
         pretrained2d=False,
         pretrained=  # noqa: E251
-        'https://openmmlab.oss-accelerate.aliyuncs.com/mmaction/recognition/csn/ircsn_from_scratch_r152_ig65m_20200807-771c4135.pth',  # noqa: E501
+        'checkpoints/ircsn_from_scratch_r152_ig65m_20200807-771c4135.pth',  # noqa: E501
         depth=152,
         with_pool2=False,
         bottleneck_mode='ir',
@@ -18,7 +18,7 @@ model = dict(
         spatial_type='avg',
         dropout_ratio=0.5,
         init_std=0.01,
-        loss_cls=dict(type='BCELossWithLogits'),
+        loss_cls=dict(type='BCELossWithLogits', loss_weight=100),
         multi_class=True))
 # model training and testing settings
 train_cfg = None
@@ -40,11 +40,7 @@ img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_bgr=False)
 train_pipeline = [
     dict(type='SampleFrames', clip_len=32, frame_interval=2, num_clips=1),
-    dict(
-        type='FrameSelector',
-        decoding_backend='turbojpeg',
-        io_backend='memcached',
-        **mc_cfg),
+    dict(type='FrameSelector', io_backend='memcached', **mc_cfg),
     dict(type='Resize', scale=(-1, 256)),
     dict(type='RandomResizedCrop'),
     dict(type='Resize', scale=(224, 224), keep_ratio=False),
@@ -114,7 +110,8 @@ data = dict(
         num_classes=46))
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.0005, momentum=0.9, weight_decay=0.0001)  # 0.0005 for 32g
+    type='SGD', lr=0.00025, momentum=0.9,
+    weight_decay=0.0001)  # 0.0005 for 32g 0.00025 for 16gpus
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 # learning policy
 lr_config = dict(

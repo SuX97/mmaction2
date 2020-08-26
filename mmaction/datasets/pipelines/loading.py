@@ -1,6 +1,7 @@
 import io
 import os
 import os.path as osp
+import random
 import shutil
 import warnings
 
@@ -886,12 +887,23 @@ class RawFrameDecode(object):
 
         for frame_idx in results['frame_inds']:
             frame_idx += offset
+            cur_frame = None
             if modality == 'RGB':
-                filepath = osp.join(directory, filename_tmpl.format(frame_idx))
-                img_bytes = self.file_client.get(filepath)
-                # Get frame with channel order RGB directly.
-                cur_frame = mmcv.imfrombytes(img_bytes, channel_order='rgb')
-                imgs.append(cur_frame)
+                while True:
+                    filepath = osp.join(directory,
+                                        filename_tmpl.format(frame_idx))
+                    img_bytes = self.file_client.get(filepath)
+                    try:
+                        cur_frame = mmcv.imfrombytes(
+                            img_bytes, channel_order='rgb')
+                    except BaseException:
+                        with open('./error_OPPO_0619.txt', 'a+') as f:
+                            f.write(filepath + '\n')
+                    if cur_frame is not None:
+                        imgs.append(cur_frame)
+                        break
+                    else:
+                        frame_idx = random.randint(1, results['total_frames'])
             elif modality == 'Flow':
                 x_filepath = osp.join(directory,
                                       filename_tmpl.format('x', frame_idx))
