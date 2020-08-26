@@ -1,0 +1,52 @@
+version: 1   #必填，保留字段，现阶段填 1.0 即可
+description: '[mmaction training component] video label training' #必填，组件描述
+color: '#123123'    #选填，color 字段是一个彩蛋，在这里填入一个颜色编码后，在创建 pipeline 时，该组件的主题色就会渲染成该编码对应的颜色。
+entrypoint: bash tools/slurm_train.sh ha_vug autolink configs/recognition/csn/ircsn_ig65m_pretrained_r152_32x2x1_58e_dynamic_rgb.py  #必填，我们会在组件的根目录下执行此处填写的代码，作为组件的入口，可以在搭建 pipeline 时进行重写覆盖
+tags: ['data','setting']   #选填，可以在前端将同一 tag 的参数聚合分组显示，并按照此处定义顺序显示参数
+inputs:   #需要前端填写或通过其他组件传入的参数
+  data_root:
+    {
+    type: String,    #选填，参数 type 可选 String / string / Int / int /  Number / number / Integer / integer / Boolean / boolean / Path / path / Float / float
+    tag: 'data',   #选填，为参数添加 tag，在前端可将同一 tag 的参数聚合显示；注意：定义时需要再 tag：后面加空格
+    multi: True,   #选填，默认是false，代表single，即参数为单输入参数；True 代表数组型输入参数
+    description: '数据集根路径',     #选填，参数的描述信息
+    default: ['', '', '']    #选填，参数的默认输入值
+    }
+  anno_path:
+    {
+    type: String,    #选填，参数 type 可选 String / string / Int / int /  Number / number / Integer / integer / Boolean / boolean / Path / path
+    tag: 'data',   #选填，为参数添加 tag，在前端可将同一 tag 的参数聚合显示；注意：定义时需要再 tag：后面加空格
+    multi: True,   #选填，默认是false，代表single，即参数为单输入参数；True 代表数组型输入参数
+    description: '数据集标注文件路径',     #选填，参数的描述信息
+    default: ['', '', '']    #选填，参数的默认输入值
+    }
+  config:
+    {
+    type: String,    #选填，参数 type 可选 String / string / Int / int /  Number / number / Integer / integer / Boolean / boolean / Path / path
+    tag: 'setting',   #选填，为参数添加 tag，在前端可将同一 tag 的参数聚合显示；注意：定义时需要再 tag：后面加空格
+    multi: false,   #选填，默认是false，代表single，即参数为单输入参数；True 代表数组型输入参数
+    description: 'config path',     #选填，参数的描述信息
+    default: ''    #选填，参数的默认输入值
+    }
+outputs:   #如果需要与其他组件的输入绑定或者将结果返回到 autolink 保存，则必须填写
+    model_path:
+      {
+      type: String,    #选填，参数 type 可选 String / string / Int / int /  Number / number / Integer / integer / Boolean / boolean / Path / path
+      multi: false,   #选填，默认是false，代表single，即参数为单输入参数；True 代表数组型输入参数
+      description: 'model路径',     #选填，参数的描述信息
+      }
+artifacts:   #可通过文件挂载的方式实现灵活的组件输入输出配置
+  inputs:
+    resume_ckpt:
+      {
+      path: '${artifactsRoot}/resume_ckpt.pth',    #必填，文件的挂载地址
+      description: 'ckpt',   #选填，参数的描述信息
+      multi: false,   #选填，默认是false，代表single，即参数为单输入参数；True 代表数组型输入参数
+      }
+  outputs:     #需要将输出文件在 task 页面进行管理、下载的参数
+    work_dir:
+      {
+      path: '${artifactsRoot}/AUTOLINK_JOB_ID',   #必填，文件的挂载地址
+      description: 'test',  #必填，参数的描述信息
+      multi: false,   #选填，默认是false，代表single，即参数为单输入参数；True 代表数组型输入参数
+      }
