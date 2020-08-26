@@ -1,4 +1,9 @@
 # model settings
+import os
+
+data_root, data_root_val, data_root_test = os.getenv('data_root')
+ann_file_train, ann_file_val, ann_file_test = os.getenv('ann_path')
+
 model = dict(
     type='Recognizer3D',
     backbone=dict(
@@ -123,7 +128,10 @@ lr_config = dict(
     warmup_iters=16)
 total_epochs = 58
 checkpoint_config = dict(interval=2)
-evaluation = dict(interval=1, metrics=['precision_recall'], topk=(1, 5))
+evaluation = dict(
+    interval=5,
+    metrics=['precision_recall', 'mean_average_precision'],
+    topk=(1, 5))
 log_config = dict(
     interval=20,
     hooks=[dict(type='TextLoggerHook'),

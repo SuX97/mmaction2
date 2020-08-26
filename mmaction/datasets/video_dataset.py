@@ -65,7 +65,7 @@ class VideoDataset(BaseDataset):
                     dict(
                         filename=filename,
                         label=onehot if self.multi_class else label))
-        return video_infos
+        return video_infos[:96]
 
     def evaluate(self,
                  results,

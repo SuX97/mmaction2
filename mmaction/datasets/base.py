@@ -92,27 +92,30 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
         while True:
             try:
                 results = copy.deepcopy(self.video_infos[idx])
+                results['modality'] = self.modality
+                results['start_index'] = self.start_index
                 return self.pipeline(results)
             except BaseException:
                 f = open('error_videos.txt', 'a+')
-                print(f'{results["filename"]} can not find.')
                 f.write(results['filename'])
                 f.write('\n')
                 f.close()
                 idx = random.randint(0, len(self.video_infos))
 
     def prepare_test_frames(self, idx):
-        while True:
-            try:
-                results = copy.deepcopy(self.video_infos[idx])
-                return self.pipeline(results)
-            except BaseException:
-                f = open('error_videos.txt', 'w+')
-                print(results['filename'])
-                f.write(results['filename'])
-                f.write('\n')
-                f.close()
-                idx = random.randint(0, len(self.video_infos))
+        # while True:
+        #     try:
+        results = copy.deepcopy(self.video_infos[idx])
+        results['modality'] = self.modality
+        results['start_index'] = self.start_index
+        return self.pipeline(results)
+        # except BaseException as e:
+        #     print(e)
+        #     f = open('error_videos.txt', 'a+')
+        #     f.write(results['filename'])
+        #     f.write('\n')
+        #     f.close()
+        #     idx = random.randint(0, len(self.video_infos))
 
     def __len__(self):
         """Get the size of the dataset."""

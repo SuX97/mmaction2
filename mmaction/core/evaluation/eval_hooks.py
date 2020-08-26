@@ -42,8 +42,8 @@ class EvalHook(Hook):
                  dataloader,
                  interval=1,
                  gpu_collect=False,
-                 save_best=True,
-                 key_indicator='top1_acc',
+                 save_best=False,
+                 key_indicator=None,
                  rule=None,
                  **eval_kwargs):
         if not isinstance(dataloader, DataLoader):
@@ -122,10 +122,6 @@ class EvalHook(Hook):
         for name, val in eval_res.items():
             runner.log_buffer.output[name] = val
         runner.log_buffer.ready = True
-        if self.key_indicator is not None:
-            return eval_res[self.key_indicator]
-        else:
-            return None
 
 
 class DistEvalHook(EvalHook):

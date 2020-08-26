@@ -6,7 +6,7 @@ tags: ['data','setting']   #选填，可以在前端将同一 tag 的参数聚�
 inputs:   #需要前端填写或通过其他组件传入的参数
   data_root:
     {
-    type: String,    #选填，参数 type 可选 String / string / Int / int /  Number / number / Integer / integer / Boolean / boolean / Path / path / Float / float
+    # type: String,    #选填，参数 type 可选 String / string / Int / int /  Number / number / Integer / integer / Boolean / boolean / Path / path / Float / float
     tag: 'data',   #选填，为参数添加 tag，在前端可将同一 tag 的参数聚合显示；注意：定义时需要再 tag：后面加空格
     multi: True,   #选填，默认是false，代表single，即参数为单输入参数；True 代表数组型输入参数
     description: '数据集根路径',     #选填，参数的描述信息
@@ -14,7 +14,7 @@ inputs:   #需要前端填写或通过其他组件传入的参数
     }
   anno_path:
     {
-    type: String,    #选填，参数 type 可选 String / string / Int / int /  Number / number / Integer / integer / Boolean / boolean / Path / path
+    # type: String,    #选填，参数 type 可选 String / string / Int / int /  Number / number / Integer / integer / Boolean / boolean / Path / path
     tag: 'data',   #选填，为参数添加 tag，在前端可将同一 tag 的参数聚合显示；注意：定义时需要再 tag：后面加空格
     multi: True,   #选填，默认是false，代表single，即参数为单输入参数；True 代表数组型输入参数
     description: '数据集标注文件路径',     #选填，参数的描述信息
