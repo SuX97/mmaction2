@@ -37,7 +37,7 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
             different filename format. However, when taking videos as input,
             it should be set to 0, since frames loaded from videos count
             from 0. Default: 1.
-        modality (str): Modality of data. Support 'RGB', 'Flow'.
+        modality (str): Modality of data. Support 'RGB', 'Flow', 'Audio'.
             Default: 'RGB'.
     """
 

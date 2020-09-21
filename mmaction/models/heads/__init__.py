@@ -4,7 +4,9 @@ from .slowfast_head import SlowFastHead
 from .ssn_head import SSNHead
 from .tsm_head import TSMHead
 from .tsn_head import TSNHead
+from .tsn_head_audio import TSNHeadAudio
 
 __all__ = [
-    'TSNHead', 'I3DHead', 'BaseHead', 'TSMHead', 'SlowFastHead', 'SSNHead'
+    'TSNHead', 'I3DHead', 'BaseHead', 'TSMHead', 'SlowFastHead', 'SSNHead',
+    'TSNHeadAudio'
 ]
