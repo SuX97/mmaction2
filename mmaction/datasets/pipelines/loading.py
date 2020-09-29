@@ -3,8 +3,8 @@ import os
 import os.path as osp
 import shutil
 import warnings
+from pdb import set_trace as st
 
-# import librosa
 import mmcv
 import numpy as np
 from mmcv.fileio import FileClient
@@ -12,8 +12,6 @@ from torch.nn.modules.utils import _pair
 
 from ...utils import get_random_string, get_shm_dir, get_thread_id
 from ..registry import PIPELINES
-
-# from pdb import set_trace as st
 
 
 @PIPELINES.register_module()
@@ -960,6 +958,42 @@ class AudioDecodeInit(object):
 
 
 @PIPELINES.register_module()
+class LoadAudioFeature(object):
+    """Load offline extracted audio feature.
+
+    Required keys are "filename", added or modified keys are "total_frames",
+    "sample_rate", "imgs".
+    """
+
+    def __init__(self, io_backend='disk', decoding_backend='numpy', **kwargs):
+        self.io_backend = io_backend
+        self.decoding_backend = decoding_backend
+        self.kwargs = kwargs
+        self.file_client = None
+
+    def __call__(self, results):
+        """Perform the numpy loading.
+
+        Args:
+            results (dict): The resulting dict to be modified and passed
+                to the next transform in pipeline.
+        """
+        if self.file_client is None:
+            self.file_client = FileClient(self.io_backend, **self.kwargs)
+        # try:
+        file_obj = io.BytesIO(self.file_client.get(results['audiopath']))
+        feature_map = np.frombuffer(file_obj, dtype=np.float32)
+        # except BaseException:
+        #     # Generate a ramdom dummy input
+        #     feature_map = np.random.randn(128, 80)
+        st()
+
+        results['length'] = feature_map.shape[0]
+        results['audios'] = feature_map
+        return results
+
+
+@PIPELINES.register_module()
 class AudioDecode(object):
     """Sample the audio w.r.t.
 
@@ -1012,6 +1046,56 @@ class FrameSelector(RawFrameDecode):
         warnings.warn('"FrameSelector" is deprecated, please switch to'
                       '"RawFrameDecode"')
         super().__init__(*args, **kwargs)
+
+
+@PIPELINES.register_module()
+class AudioFeatureSelector(object):
+    """Sample the audio feature w.r.t.
+
+    frames selected.
+    """
+
+    def __init__(self, fixed_length=128):
+        self.fixed_length = fixed_length
+
+    def __call__(self, results):
+        """Perform the ``AudioFeatureSelector`` to pick audio feature clips.
+
+        Args:
+            results (dict): The resulting dict to be modified and passed
+                to the next transform in pipeline.
+        """
+        audio = results['audios']
+        frame_inds = results['frame_inds']
+        num_clips = results['num_clips']
+        resampled_clips = list()
+
+        frame_inds = frame_inds.reshape(num_clips, -1)
+        for clip_idx in range(num_clips):
+            clip_frame_inds = frame_inds[clip_idx]
+            start_idx = max(
+                0,
+                int(
+                    round((clip_frame_inds[0] + 1) / results['total_frames'] *
+                          results['length'])))
+            end_idx = min(
+                results['length'],
+                int(
+                    round((clip_frame_inds[-1] + 1) / results['total_frames'] *
+                          results['length'])))
+            cropped_audio = audio[start_idx:end_idx]
+            if cropped_audio.shape[-1] >= self.truncate_length:
+                truncated_audio = cropped_audio[:, :self.fixed_length]
+            else:
+                truncated_audio = np.pad(
+                    cropped_audio,
+                    ((0, 0), (0, self.fixed_length - cropped_audio.shape[-1])),
+                    mode='edge')
+            resampled_clips.append(truncated_audio)
+
+        results['audios'] = np.array(resampled_clips)
+        results['audios_shape'] = results['audios'].shape
+        return results
 
 
 @PIPELINES.register_module()
