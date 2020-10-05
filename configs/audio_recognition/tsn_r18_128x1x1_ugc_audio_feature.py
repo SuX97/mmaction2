@@ -12,7 +12,7 @@ model = dict(
 train_cfg = None
 test_cfg = dict(average_clips=None)
 # dataset settings
-dataset_type = 'AudioDataset'
+dataset_type = 'AudioFeatureDataset'
 data_root = 'data/ugc/audio_feature'
 data_root_val = 'data/ugc/audio_feature'
 ann_file_train = 'data/ugc/ugc_train_list_audio_feature.txt'
@@ -58,7 +58,7 @@ test_pipeline = [
 ]
 data = dict(
     videos_per_gpu=16,
-    workers_per_gpu=4,
+    workers_per_gpu=0,
     train=dict(
         type=dataset_type,
         ann_file=ann_file_train,
