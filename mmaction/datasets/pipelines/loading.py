@@ -885,10 +885,18 @@ class RawFrameDecode(object):
         for frame_idx in results['frame_inds']:
             frame_idx += offset
             if modality == 'RGB':
-                filepath = osp.join(directory, filename_tmpl.format(frame_idx))
-                img_bytes = self.file_client.get(filepath)
-                # Get frame with channel order RGB directly.
-                cur_frame = mmcv.imfrombytes(img_bytes, channel_order='rgb')
+                while True:
+                    try:
+                        filepath = osp.join(directory,
+                                            filename_tmpl.format(frame_idx))
+                        img_bytes = self.file_client.get(filepath)
+                        # Get frame with channel order RGB directly.
+                        cur_frame = mmcv.imfrombytes(
+                            img_bytes, channel_order='rgb')
+                        break
+                    except BaseException:
+                        frame_idx = frame_idx % 3 + 1
+                        continue
                 imgs.append(cur_frame)
             elif modality == 'Flow':
                 x_filepath = osp.join(directory,
