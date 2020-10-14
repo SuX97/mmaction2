@@ -1,11 +1,7 @@
 # model settings
 model = dict(
     type='Recognizer2D',
-    backbone=dict(
-        type='ResNet',
-        pretrained='torchvision://resnet50',
-        depth=50,
-        norm_eval=False),
+    backbone=dict(type='ResNet', pretrained=None, depth=50, norm_eval=False),
     cls_head=dict(
         type='TSNHead',
         num_classes=212,
@@ -31,7 +27,7 @@ mc_cfg = dict(
     client_cfg='/mnt/lustre/share/memcached_client/client.conf',
     sys_path='/mnt/lustre/share/pymc/py3')
 train_pipeline = [
-    dict(type='SampleFrames', clip_len=1, frame_interval=1, num_clips=8),
+    dict(type='SampleFrames', clip_len=1, frame_interval=1, num_clips=6),
     dict(
         type='RawFrameDecode',
         io_backend='memcached',
@@ -58,7 +54,7 @@ val_pipeline = [
         type='SampleFrames',
         clip_len=1,
         frame_interval=1,
-        num_clips=8,
+        num_clips=6,
         test_mode=True),
     dict(type='RawFrameDecode'),
     dict(type='Resize', scale=(-1, 256)),
@@ -105,7 +101,7 @@ data = dict(
         pipeline=test_pipeline))
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.005, momentum=0.9,
+    type='SGD', lr=0.05, momentum=0.9,
     weight_decay=0.0001)  # this lr is used for 8 gpus
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 # learning policy
@@ -118,12 +114,12 @@ log_config = dict(
     interval=20,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook'),
+        dict(type='TensorboardLoggerHook'),
     ])
 # runtime settings
 dist_params = dict(backend='nccl', port=29509)
 log_level = 'INFO'
-work_dir = './work_dirs/tsn_r50_1x1x8_100e_ugc_rgb/'
+work_dir = './work_dirs/tsn_r50_1x1x6_100e_ugc_rgb/'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
