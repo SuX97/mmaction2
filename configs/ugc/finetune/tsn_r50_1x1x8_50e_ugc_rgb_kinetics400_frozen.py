@@ -6,7 +6,7 @@ model = dict(
         pretrained='torchvision://resnet50',
         depth=50,
         norm_eval=False,
-        frozen_stage=4),
+        frozen_stages=4),
     cls_head=dict(
         type='TSNHead',
         num_classes=212,
@@ -123,6 +123,6 @@ dist_params = dict(backend='nccl', port=29509)
 log_level = 'INFO'
 work_dir = './work_dirs/tsn_r50_1x1x8_50e_ugc_rgb_k400_frozen/'
 load_from = ('./ckpts' +
-             '/tsn_r50_video_1x1x8_100e_kinetics400_rgb_20200702-568cde33.pth')
+             '/tsn_r50_256p_1x1x8_100e_kinetics400_rgb_20200817-883baf16.pth')
 resume_from = None
 workflow = [('train', 1)]
