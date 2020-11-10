@@ -47,7 +47,13 @@ train_pipeline = [
         decoding_backend='turbojpeg',
         **mc_cfg),
     dict(type='Resize', scale=(-1, 256), lazy=True),
-    dict(type='RandomResizedCrop', lazy=True),
+    dict(
+        type='MultiScaleCrop',
+        input_size=224,
+        scales=(1, 0.875, 0.75, 0.66),
+        random_crop=False,
+        max_wh_scale_gap=1,
+        lazy=True),
     dict(type='Resize', scale=(224, 224), keep_ratio=False, lazy=True),
     dict(type='Flip', flip_ratio=0.5, lazy=True),
     dict(type='Fuse'),
@@ -97,7 +103,7 @@ test_pipeline = [
     dict(type='ToTensor', keys=['imgs'])
 ]
 data = dict(
-    videos_per_gpu=8,
+    videos_per_gpu=16,
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
@@ -118,7 +124,7 @@ data = dict(
         test_mode=True))
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.1, momentum=0.9,
+    type='SGD', lr=0.2, momentum=0.9,
     weight_decay=0.0001)  # this lr is used for 8 gpus
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 # learning policy
