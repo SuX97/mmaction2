@@ -27,10 +27,11 @@ def post_processing(result, video_info, soft_nms_alpha, soft_nms_low_threshold,
                           soft_nms_high_threshold, post_process_top_k)
 
     result = result[result[:, -1].argsort()[::-1]]
-    video_duration = float(
-        video_info['duration_frame'] // feature_extraction_interval *
-        feature_extraction_interval
-    ) / video_info['duration_frame'] * video_info['duration_second']
+    # video_duration = float(
+    #     video_info['duration_frame'] // feature_extraction_interval *
+    #     feature_extraction_interval
+    # ) / video_info['duration_frame'] * video_info['duration_second']
+    video_duration = float(video_info['duration_second'])
     proposal_list = []
 
     for j in range(min(post_process_top_k, len(result))):
