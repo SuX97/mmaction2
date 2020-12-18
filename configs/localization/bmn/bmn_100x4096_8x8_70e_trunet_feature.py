@@ -87,7 +87,7 @@ optimizer = dict(
     type='SGD', lr=0.001/4, momentum=0.9, weight_decay=0.0005)  # this lr is used for 8 gpus, batch_size 64
 optimizer_config = dict(grad_clip=None)
 # learning policy
-# lr_config = dict(policy='step', step=7)
+lr_config = dict(policy='step', step=[80])
 total_epochs = 70
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=10, metrics=['AR@AN'])
