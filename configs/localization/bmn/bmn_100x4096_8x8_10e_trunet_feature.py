@@ -84,14 +84,13 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='Adam', lr=0.001, weight_decay=0.0001)  # this lr is used for 2 gpus
+    type='SGD', lr=0.001, momentum=0.9, weight_decay=0.0005)  # this lr is used for 4 gpus, batch_size 256
 optimizer_config = dict(grad_clip=None)
 # learning policy
-lr_config = dict(policy='step', step=7)
-
+# lr_config = dict(policy='step', step=7)
 total_epochs = 70
-checkpoint_config = dict(interval=1)
-evaluation = dict(interval=1, metrics=['AR@AN'])
+checkpoint_config = dict(interval=10)
+evaluation = dict(interval=10, metrics=['AR@AN'])
 log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 # runtime settings
 dist_params = dict(backend='nccl')
