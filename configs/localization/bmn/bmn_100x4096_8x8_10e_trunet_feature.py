@@ -28,10 +28,9 @@ test_pipeline = [
         keys=['raw_feature'],
         meta_name='video_meta',
         meta_keys=[
-            'video_name', 'duration_second', 'duration_frame', 'annotations',
-            'feature_frame'
+            'video_name', 'duration_second', 'annotations'
         ]),
-    dict(type='ToTensor', keys=['raw_feature']),
+    dict(type='ToTensor', keys=['raw_feature'])
 ]
 train_pipeline = [
     dict(type='LoadLocalizationFeature'),
@@ -54,8 +53,7 @@ val_pipeline = [
         keys=['raw_feature', 'gt_bbox'],
         meta_name='video_meta',
         meta_keys=[
-            'video_name', 'duration_second', 'duration_frame', 'annotations',
-            'feature_frame'
+            'video_name', 'duration_second', 'annotations'
         ]),
     dict(type='ToTensor', keys=['raw_feature', 'gt_bbox']),
     dict(
@@ -91,14 +89,14 @@ optimizer_config = dict(grad_clip=None)
 # learning policy
 lr_config = dict(policy='step', step=7)
 
-total_epochs = 9
+total_epochs = 70
 checkpoint_config = dict(interval=1)
 evaluation = dict(interval=1, metrics=['AR@AN'])
 log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/bmn_400x100_2x8_9e_activitynet_feature/'
+work_dir = './work_dirs/bmn_100x4096_8x8_10e_trunet_feature/'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

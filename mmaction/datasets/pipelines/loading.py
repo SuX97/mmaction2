@@ -3,6 +3,7 @@ import os
 import os.path as osp
 import shutil
 import warnings
+import pickle
 
 import mmcv
 import numpy as np
@@ -1485,11 +1486,11 @@ class LoadLocalizationFeature:
     are "raw_feature".
 
     Args:
-        raw_feature_ext (str): Raw feature file extension.  Default: '.csv'.
+        raw_feature_ext (str): Raw feature file extension.  Default: '.pkl'.
     """
 
-    def __init__(self, raw_feature_ext='.csv'):
-        valid_raw_feature_ext = ('.csv', )
+    def __init__(self, raw_feature_ext='.pkl'):
+        valid_raw_feature_ext = ('.pkl', )
         if raw_feature_ext not in valid_raw_feature_ext:
             raise NotImplementedError
         self.raw_feature_ext = raw_feature_ext
@@ -1505,10 +1506,11 @@ class LoadLocalizationFeature:
         data_prefix = results['data_prefix']
 
         data_path = osp.join(data_prefix, video_name + self.raw_feature_ext)
-        raw_feature = np.loadtxt(
-            data_path, dtype=np.float32, delimiter=',', skiprows=1)
+        # raw_feature = np.loadtxt(
+        #     data_path, dtype=np.float32, delimiter=',', skiprows=1)
+        raw_feature = pickle.load(open(data_path, 'rb'), encoding='bytes')
 
-        results['raw_feature'] = np.transpose(raw_feature, (1, 0))
+        results['raw_feature'] = np.transpose(raw_feature, (1, 0))   # 4096, 100
 
         return results
 
@@ -1522,8 +1524,7 @@ class LoadLocalizationFeature:
 class GenerateLocalizationLabels:
     """Load video label for localizer with given video_name list.
 
-    Required keys are "duration_frame", "duration_second", "feature_frame",
-    "annotations", added or modified keys are "gt_bbox".
+    Required keys are "duration_second", "annotations", added or modified keys are "gt_bbox".
     """
 
     def __call__(self, results):
@@ -1533,19 +1534,19 @@ class GenerateLocalizationLabels:
             results (dict): The resulting dict to be modified and passed
                 to the next transform in pipeline.
         """
-        video_frame = results['duration_frame']
+        # video_frame = results['duration_frame']
         video_second = results['duration_second']
-        feature_frame = results['feature_frame']
-        corrected_second = float(feature_frame) / video_frame * video_second
+        # feature_frame = results['feature_frame']
+        # corrected_second = float(feature_frame) / video_frame * video_second
         annotations = results['annotations']
 
         gt_bbox = []
 
         for annotation in annotations:
             current_start = max(
-                min(1, annotation['segment'][0] / corrected_second), 0)
+                min(1, annotation['segment'][0] / video_second), 0)
             current_end = max(
-                min(1, annotation['segment'][1] / corrected_second), 0)
+                min(1, annotation['segment'][1] / video_second), 0)
             gt_bbox.append([current_start, current_end])
 
         gt_bbox = np.array(gt_bbox)
