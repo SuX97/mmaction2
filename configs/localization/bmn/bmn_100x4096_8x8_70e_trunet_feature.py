@@ -84,7 +84,7 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.001, momentum=0.9, weight_decay=0.0005)  # this lr is used for 4 gpus, batch_size 256
+    type='SGD', lr=0.001/4, momentum=0.9, weight_decay=0.0005)  # this lr is used for 8 gpus, batch_size 64
 optimizer_config = dict(grad_clip=None)
 # learning policy
 # lr_config = dict(policy='step', step=7)
@@ -95,7 +95,7 @@ log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/bmn_100x4096_8x8_10e_trunet_feature/'
+work_dir = './work_dirs/bmn_100x4096_8x8_70e_trunet_feature/'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
