@@ -19,19 +19,8 @@ data_root = 'data/train_mean_100/'
 data_root_val = 'data/val_mean_100/'
 ann_file_train = 'data/train_meta.json'
 ann_file_val = 'data/val_meta.json'
-ann_file_test = 'data/test_meta.json'
+ann_file_test = 'data/val_meta.json'
 
-test_pipeline = [
-    dict(type='LoadLocalizationFeature'),
-    dict(
-        type='Collect',
-        keys=['raw_feature'],
-        meta_name='video_meta',
-        meta_keys=[
-            'video_name', 'duration_second', 'annotations'
-        ]),
-    dict(type='ToTensor', keys=['raw_feature'])
-]
 train_pipeline = [
     dict(type='LoadLocalizationFeature'),
     dict(type='GenerateLocalizationLabels'),
@@ -59,6 +48,17 @@ val_pipeline = [
     dict(
         type='ToDataContainer',
         fields=[dict(key='gt_bbox', stack=False, cpu_only=True)])
+]
+test_pipeline = [
+    dict(type='LoadLocalizationFeature'),
+    dict(
+        type='Collect',
+        keys=['raw_feature'],
+        meta_name='video_meta',
+        meta_keys=[
+            'video_name', 'duration_second', 'annotations'
+        ]),
+    dict(type='ToTensor', keys=['raw_feature'])
 ]
 data = dict(
     videos_per_gpu=8,
