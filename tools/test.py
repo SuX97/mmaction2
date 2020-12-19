@@ -102,13 +102,13 @@ def main():
 
     # Load output_config from cfg
     output_config = cfg.get('output_config', {})
-    if args.out is not None:
+    if args.out:
         # Overwrite output_config from args.out
         output_config = Config._merge_a_into_b(dict(out=args.out), output_config)
 
     # Load eval_config from cfg
     eval_config = cfg.get('eval_config', {})
-    if args.eval is not None:
+    if args.eval:
         # Overwrite eval_config from args.eval
         eval_config = Config._merge_a_into_b(dict(metrics=args.eval), eval_config)
     if args.eval_options:
