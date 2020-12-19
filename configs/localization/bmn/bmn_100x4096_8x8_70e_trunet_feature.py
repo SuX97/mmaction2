@@ -91,7 +91,7 @@ lr_config = dict(policy='step', step=[80])
 total_epochs = 70
 checkpoint_config = dict(interval=10)
 evaluation = dict(interval=10, metrics=['AR@AN'])
-log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
+log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook'), dict(type='TensorboardLoggerHook')])
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
