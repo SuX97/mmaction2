@@ -69,7 +69,7 @@ data = dict(
     test=dict(
         type=dataset_type,
         ann_file=ann_file_test,
-        pipeline=test_pipeline,
+        pipeline=val_pipeline,
         data_prefix=data_root_val),
     val=dict(
         type=dataset_type,
@@ -100,3 +100,4 @@ load_from = None
 resume_from = None
 workflow = [('train', 1)]
 output_config = dict(out=f'{work_dir}/results.json', output_format='json')
+eval_config = dict(metrics='AR@AN')
