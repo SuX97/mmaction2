@@ -15,11 +15,11 @@ train_cfg = None
 test_cfg = dict(average_clips='score')
 # dataset settings
 dataset_type = 'TruNetDataset'
-data_root = 'data/train_mean_2000/'
-data_root_val = 'data/val_mean_2000/'
-ann_file_train = 'data/train_meta.json'
-ann_file_val = 'data/val_meta.json'
-ann_file_test = 'data/val_meta.json'
+data_root = 'data/train_mean_2000_10/'
+data_root_val = 'data/val_mean_2000_10/'
+ann_file_train = 'data/train_meta_10.json'
+ann_file_val = 'data/val_meta_10.json'
+ann_file_test = 'data/val_meta_10.json'
 
 train_pipeline = [
     dict(type='LoadLocalizationFeature'),
@@ -80,8 +80,8 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.001 / 32, momentum=0.9,
-    weight_decay=0.0005)  # this lr is used for 8 gpus, batch_size 8
+    type='SGD', lr=0.001 / 256, momentum=0.9,
+    weight_decay=0.0005)  # this lr is used for 8 gpus, batch_size 1
 optimizer_config = dict(grad_clip=None)
 # learning policy
 lr_config = dict(policy='step', step=[80])
@@ -95,7 +95,7 @@ log_config = dict(
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/bmn_2000x4096_1x8_70e_trunet_feature'
+work_dir = './work_dirs/bmn_200x4096x10_1x1_70e_trunet_truncate_feature'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

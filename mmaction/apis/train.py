@@ -117,7 +117,6 @@ def train_model(model,
 
     if validate:
         eval_cfg = cfg.get('evaluation', {})
-        # print(eval_cfg)
         val_dataset = build_dataset(cfg.data.val, dict(test_mode=True))
         dataloader_setting = dict(
             videos_per_gpu=cfg.data.get('videos_per_gpu', 1),
