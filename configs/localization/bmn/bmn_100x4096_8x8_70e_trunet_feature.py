@@ -95,7 +95,7 @@ log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/bmn_100x4096_8x8_70e_trunet_feature/'
+work_dir = './work_dirs/bmn_100x4096_8x8_70e_trunet_feature'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
