@@ -1511,7 +1511,7 @@ class LoadLocalizationFeature:
         raw_feature = pickle.load(open(data_path, 'rb'), encoding='bytes')
 
         results['raw_feature'] = np.transpose(
-            raw_feature.astype(np.float32), (1, 0))  # 4096, 100
+            raw_feature.astype(np.float32), (1, 0))  # 4096, 2000
 
         return results
 

@@ -11,12 +11,14 @@ from .image_dataset import ImageDataset
 from .rawframe_dataset import RawframeDataset
 from .rawvideo_dataset import RawVideoDataset
 from .ssn_dataset import SSNDataset
-from .video_dataset import VideoDataset
 from .trunet_dataset import TruNetDataset
+from .trunet_truncate_dataseet import TruNetTruncateDataset
+from .video_dataset import VideoDataset
 
 __all__ = [
     'VideoDataset', 'build_dataloader', 'build_dataset', 'RepeatDataset',
     'RawframeDataset', 'BaseDataset', 'ActivityNetDataset', 'SSNDataset',
     'HVUDataset', 'AudioDataset', 'AudioFeatureDataset', 'ImageDataset',
-    'RawVideoDataset', 'AVADataset', 'AudioVisualDataset', 'TruNetDataset'
+    'RawVideoDataset', 'AVADataset', 'AudioVisualDataset', 'TruNetDataset',
+    'TruNetTruncateDataset'
 ]
