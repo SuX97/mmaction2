@@ -57,7 +57,7 @@ test_pipeline = [
     dict(type='ToTensor', keys=['raw_feature'])
 ]
 data = dict(
-    videos_per_gpu=8,
+    videos_per_gpu=4,
     workers_per_gpu=8,
     train_dataloader=dict(drop_last=True),
     val_dataloader=dict(videos_per_gpu=1),
@@ -80,7 +80,7 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.001, momentum=0.9,
+    type='SGD', lr=0.001 / 2, momentum=0.9,
     weight_decay=0.0005)  # this lr is used for 32 gpus, batch_size 256
 optimizer_config = dict(grad_clip=None)
 # learning policy
@@ -95,7 +95,7 @@ log_config = dict(
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/bmn_200x4096x10_8x32_70e_trunet_truncate_feature'
+work_dir = './work_dirs/bmn_200x4096x10_4x32_70e_trunet_truncate_feature'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
