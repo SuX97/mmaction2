@@ -104,13 +104,15 @@ def main():
     output_config = cfg.get('output_config', {})
     if args.out:
         # Overwrite output_config from args.out
-        output_config = Config._merge_a_into_b(dict(out=args.out), output_config)
+        output_config = Config._merge_a_into_b(
+            dict(out=args.out), output_config)
 
     # Load eval_config from cfg
     eval_config = cfg.get('eval_config', {})
     if args.eval:
         # Overwrite eval_config from args.eval
-        eval_config = Config._merge_a_into_b(dict(metrics=args.eval), eval_config)
+        eval_config = Config._merge_a_into_b(
+            dict(metrics=args.eval), eval_config)
     if args.eval_options:
         # Add options from args.eval_options
         eval_config = Config._merge_a_into_b(args.eval_options, eval_config)
@@ -169,7 +171,8 @@ def main():
         model = fuse_conv_bn(model)
 
     if not distributed:
-        model = MMDataParallel(model, device_ids=[0])
+        # model = MMDataParallel(model, device_ids=[0])
+        model = MMDataParallel(model)
         outputs = single_gpu_test(model, data_loader)
     else:
         model = MMDistributedDataParallel(

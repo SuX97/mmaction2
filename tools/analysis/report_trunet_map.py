@@ -63,6 +63,7 @@ def parse_args():
         type=str,
         default='det_result.json',
         help='the path to store detection results')
+    parser.add_argument('--proposal-num', type=int, default=13)
     args = parser.parse_args()
     return args
 
@@ -83,10 +84,11 @@ def main():
     trunet_detection = TruNetDetection(
         args.gt,
         args.det_output,
+        args.proposal_num,
         tiou_thresholds=np.linspace(0.5, 0.95, 10),
         verbose=True)
     mAP, average_mAP = trunet_detection.evaluate()
-    print('[RESULTS] Performance on ActivityNet detection task.\n'
+    print('[RESULTS] Performance on TruNet detection task.\n'
           f'mAP: {mAP}\nAverage-mAP: {average_mAP}')
 
 

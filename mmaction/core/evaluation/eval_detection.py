@@ -4,7 +4,8 @@ import numpy as np
 from mmcv.utils import print_log
 
 from ...utils import get_root_logger
-from .accuracy import interpolated_precision_recall, pairwise_temporal_iou
+from .accuracy import (average_recall_at_avg_proposals,
+                       interpolated_precision_recall, pairwise_temporal_iou)
 
 
 class ActivityNetDetection:
@@ -127,8 +128,9 @@ class ActivityNetDetection:
 
         for i in range(len(self.activity_index)):
             ap_result = compute_average_precision_detection(
-                ground_truth_by_label[i], prediction_by_label[i],
-                self.tiou_thresholds)
+                ground_truth_by_label[i],
+                prediction_by_label[i],
+                tiou_thresholds=self.tiou_thresholds)
             ap[:, i] = ap_result
 
         return ap
@@ -163,6 +165,7 @@ class TruNetDetection:
     def __init__(self,
                  ground_truth_filename=None,
                  prediction_filename=None,
+                 proposal_num=13,
                  tiou_thresholds=np.linspace(0.5, 0.95, 10),
                  verbose=False):
         if not ground_truth_filename:
@@ -171,6 +174,7 @@ class TruNetDetection:
             raise IOError('Please input a valid prediction file.')
         self.ground_truth_filename = ground_truth_filename
         self.prediction_filename = prediction_filename
+        self.proposal_num = proposal_num
         self.tiou_thresholds = tiou_thresholds
         self.verbose = verbose
         self.ap = None
@@ -211,7 +215,20 @@ class TruNetDetection:
         # activity_index, class_idx = {}, 0
 
         ground_truth = []
+        # avg_anno = 0
+        # video_number = len(data)
         for video_id, video_info in data.items():
+            # avg_anno += len(video_info['annotations'])
+            if video_id == '219131500':
+                # print(f'ground truth')
+                # print(video_info['annotations'])
+                with open(
+                        'data/219131500_gt.json', 'w', encoding='utf-8') as f:
+                    json.dump(
+                        video_info['annotations'],
+                        f,
+                        ensure_ascii=False,
+                        indent=2)
             for anno in video_info['annotations']:
                 ground_truth_item = dict()
                 ground_truth_item['video-id'] = video_id
@@ -220,7 +237,7 @@ class TruNetDetection:
                 # ground_truth_item['label'] = activity_index[anno['label']]
                 ground_truth_item['label'] = 0
                 ground_truth.append(ground_truth_item)
-
+        # print(f'average annos per video:{avg_anno/video_number}')
         return ground_truth, {0: 0}
 
     def _import_prediction(self, prediction_filename):
@@ -236,8 +253,24 @@ class TruNetDetection:
             data = json.load(f)
         # Read predictions.
         prediction = []
+        # avg_proposal = 0
+        # video_number = len(data)
         for video_id, video_info in data.items():
-            for result in video_info:
+            # avg_proposal += len(video_info)
+            video_info = sorted(
+                video_info, key=lambda x: x['score'], reverse=True)
+            if video_id == '219131500':
+                # print(f'proposals')
+                # print(video_info[:11])
+                with open(
+                        'data/219131500_proposal.json', 'w',
+                        encoding='utf-8') as f:
+                    json.dump(
+                        video_info[:self.proposal_num],
+                        f,
+                        ensure_ascii=False,
+                        indent=2)
+            for result in video_info[:self.proposal_num]:
                 prediction_item = dict()
                 prediction_item['video-id'] = video_id
                 prediction_item['label'] = 0
@@ -245,7 +278,7 @@ class TruNetDetection:
                 prediction_item['t-end'] = float(result['segment'][1])
                 prediction_item['score'] = result['score']
                 prediction.append(prediction_item)
-
+        # print(f'average proposals per video: {avg_proposal/video_number}')
         return prediction
 
     def wrapper_compute_average_precision(self):
@@ -265,8 +298,10 @@ class TruNetDetection:
 
         for i in range(len(self.activity_index)):
             ap_result = compute_average_precision_detection(
-                ground_truth_by_label[i], prediction_by_label[i],
-                self.tiou_thresholds)
+                ground_truth_by_label[i],
+                prediction_by_label[i],
+                self.proposal_num,
+                tiou_thresholds=self.tiou_thresholds)
             ap[:, i] = ap_result
 
         return ap
@@ -283,11 +318,47 @@ class TruNetDetection:
         self.mAP = self.ap.mean(axis=1)
         self.average_mAP = self.mAP.mean()
 
+        self.ARAN()
+
         return self.mAP, self.average_mAP
+
+    def ARAN(self):
+        # import ground truth by array
+        with open(self.ground_truth_filename, 'r') as f:
+            data = json.load(f)
+        ground_truth = dict()
+        for video_id, video_info in data.items():
+            vinfo = []
+            for anno in video_info['annotations']:
+                vinfo.append([anno['segment'][0], anno['segment'][1]])
+            ground_truth[video_id] = np.array(vinfo)
+
+        with open(self.prediction_filename, 'r') as f:
+            data = json.load(f)
+        prediction = dict()
+        total_num_proposals = 0
+        for video_id, video_info in data.items():
+            vinfo = []
+            for anno in video_info:
+                total_num_proposals += 1
+                vinfo.append([anno['segment'][0], anno['segment'][1], 0])
+            prediction[video_id] = np.array(vinfo)
+        # import pdb
+        # pdb.set_trace()
+
+        recall, _, _, _ = average_recall_at_avg_proposals(
+            ground_truth,
+            prediction,
+            total_num_proposals,
+            max_avg_proposals=100,
+            temporal_iou_thresholds=np.linspace(0.5, 0.95, 10))
+        print(f'AR@{self.proposal_num}: '
+              f'{np.mean(recall[:, self.proposal_num - 1])}')
 
 
 def compute_average_precision_detection(ground_truth,
                                         prediction,
+                                        proposal_num=13,
                                         tiou_thresholds=np.linspace(
                                             0.5, 0.95, 10)):
     """Compute average precision (detection task) between ground truth and
@@ -302,6 +373,7 @@ def compute_average_precision_detection(ground_truth,
         prediction (list[dict]): List containing the prediction instances
             (dictionaries). Required keys are: 'video-id', 't-start', 't-end'
             and 'score'.
+        proposal_num (int): Number of average number to be reported in AR@AN.
         tiou_thresholds (np.ndarray): A 1darray indicates the temporal
             intersection over union threshold, which is optional.
             Default: ``np.linspace(0.5, 0.95, 10)``.
@@ -365,6 +437,10 @@ def compute_average_precision_detection(ground_truth,
 
     precision_cumsum = tp_cumsum / (tp_cumsum + fp_cumsum)
 
+    aran = np.mean(recall_cumsum, axis=0)[-1]
+    print(f'AR@AN={proposal_num}: {aran}')
+    # import pdb
+    # pdb.set_trace()
     for t_idx in range(len(tiou_thresholds)):
         ap[t_idx] = interpolated_precision_recall(precision_cumsum[t_idx, :],
                                                   recall_cumsum[t_idx, :])

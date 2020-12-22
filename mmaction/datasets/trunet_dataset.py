@@ -234,6 +234,8 @@ class TruNetDataset(BaseDataset):
                 if isinstance(temporal_iou_thresholds, list):
                     temporal_iou_thresholds = np.array(temporal_iou_thresholds)
 
+                import pdb
+                pdb.set_trace()
                 recall, _, _, auc = (
                     average_recall_at_avg_proposals(
                         ground_truth,
