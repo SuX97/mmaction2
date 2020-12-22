@@ -221,7 +221,7 @@ class TruNetDetection:
                 ground_truth_item['label'] = 0
                 ground_truth.append(ground_truth_item)
 
-        return ground_truth
+        return ground_truth, 1
 
     def _import_prediction(self, prediction_filename):
         """Read prediction file and return the prediction instances.
