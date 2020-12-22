@@ -236,7 +236,7 @@ class TruNetDetection:
             data = json.load(f)
         # Read predictions.
         prediction = []
-        for video_id, video_info in data['results'].items():
+        for video_id, video_info in data.items():
             for result in video_info:
                 prediction_item = dict()
                 prediction_item['video-id'] = video_id
