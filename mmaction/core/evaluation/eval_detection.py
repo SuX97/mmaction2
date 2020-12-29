@@ -219,16 +219,6 @@ class TruNetDetection:
         # video_number = len(data)
         for video_id, video_info in data.items():
             # avg_anno += len(video_info['annotations'])
-            if video_id == '219131500':
-                # print(f'ground truth')
-                # print(video_info['annotations'])
-                with open(
-                        'data/219131500_gt.json', 'w', encoding='utf-8') as f:
-                    json.dump(
-                        video_info['annotations'],
-                        f,
-                        ensure_ascii=False,
-                        indent=2)
             for anno in video_info['annotations']:
                 ground_truth_item = dict()
                 ground_truth_item['video-id'] = video_id
@@ -249,28 +239,26 @@ class TruNetDetection:
         Returns:
             List: List containing the prediction instances (dictionaries).
         """
+
+        threshold = 0.9
+
         with open(prediction_filename, 'r') as f:
             data = json.load(f)
         # Read predictions.
         prediction = []
         # avg_proposal = 0
-        # video_number = len(data)
+        score_sum = 0
+        selected_proposal = 0
+        min_score_list = []
+        max_score_list = []
         for video_id, video_info in data.items():
-            # avg_proposal += len(video_info)
             video_info = sorted(
                 video_info, key=lambda x: x['score'], reverse=True)
-            if video_id == '219131500':
-                # print(f'proposals')
-                # print(video_info[:11])
-                with open(
-                        'data/219131500_proposal.json', 'w',
-                        encoding='utf-8') as f:
-                    json.dump(
-                        video_info[:self.proposal_num],
-                        f,
-                        ensure_ascii=False,
-                        indent=2)
+            video_min_score = float('inf')
+            video_max_score = 0
             for result in video_info[:self.proposal_num]:
+                if result['score'] < threshold:
+                    break
                 prediction_item = dict()
                 prediction_item['video-id'] = video_id
                 prediction_item['label'] = 0
@@ -278,7 +266,12 @@ class TruNetDetection:
                 prediction_item['t-end'] = float(result['segment'][1])
                 prediction_item['score'] = result['score']
                 prediction.append(prediction_item)
-        # print(f'average proposals per video: {avg_proposal/video_number}')
+                score_sum += result['score']
+                selected_proposal += 1
+                video_min_score = min(video_min_score, result['score'])
+                video_max_score = max(video_max_score, result['score'])
+            min_score_list.append(video_min_score)
+            max_score_list.append(video_max_score)
         return prediction
 
     def wrapper_compute_average_precision(self):
@@ -297,6 +290,8 @@ class TruNetDetection:
             prediction_by_label[pred['label']].append(pred)
 
         for i in range(len(self.activity_index)):
+            # import pdb
+            # pdb.set_trace()
             ap_result = compute_average_precision_detection(
                 ground_truth_by_label[i],
                 prediction_by_label[i],
@@ -341,12 +336,10 @@ class TruNetDetection:
             vinfo = []
             for anno in video_info:
                 total_num_proposals += 1
-                vinfo.append([anno['segment'][0], anno['segment'][1], 0])
+                vinfo.append(
+                    [anno['segment'][0], anno['segment'][1], anno['score']])
             prediction[video_id] = np.array(vinfo)
-        # import pdb
-        # pdb.set_trace()
-
-        recall, _, _, _ = average_recall_at_avg_proposals(
+        recall, _, _, auc = average_recall_at_avg_proposals(
             ground_truth,
             prediction,
             total_num_proposals,
@@ -354,6 +347,7 @@ class TruNetDetection:
             temporal_iou_thresholds=np.linspace(0.5, 0.95, 10))
         print(f'AR@{self.proposal_num}: '
               f'{np.mean(recall[:, self.proposal_num - 1])}')
+        print(f'auc: {auc}')
 
 
 def compute_average_precision_detection(ground_truth,
@@ -430,17 +424,13 @@ def compute_average_precision_detection(ground_truth,
 
             if fp[t_idx, idx] == 0 and tp[t_idx, idx] == 0:
                 fp[t_idx, idx] = 1
-
+    # shape: [num_thresholds, num_preds]
     tp_cumsum = np.cumsum(tp, axis=1).astype(np.float)
     fp_cumsum = np.cumsum(fp, axis=1).astype(np.float)
     recall_cumsum = tp_cumsum / num_positive
 
     precision_cumsum = tp_cumsum / (tp_cumsum + fp_cumsum)
 
-    aran = np.mean(recall_cumsum, axis=0)[-1]
-    print(f'AR@AN={proposal_num}: {aran}')
-    # import pdb
-    # pdb.set_trace()
     for t_idx in range(len(tiou_thresholds)):
         ap[t_idx] = interpolated_precision_recall(precision_cumsum[t_idx, :],
                                                   recall_cumsum[t_idx, :])
