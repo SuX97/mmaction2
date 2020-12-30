@@ -17,7 +17,7 @@ ann_file_train = 'data/train_meta.json'
 ann_file_val = 'data/val_meta.json'
 ann_file_test = 'data/val_meta.json'
 
-work_dir = 'work_dirs/bsn_tem_2000x4096_lr_0.01_8x12_70e_trunet_feature/'
+work_dir = 'work_dirs/bsn_tem_2000x4096_lr0.01_8x12_70e_trunet_feature/'
 tem_results_dir = f'{work_dir}/tem_results/'
 
 test_pipeline = [
