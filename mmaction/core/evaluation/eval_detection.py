@@ -249,13 +249,9 @@ class TruNetDetection:
         # avg_proposal = 0
         score_sum = 0
         selected_proposal = 0
-        min_score_list = []
-        max_score_list = []
         for video_id, video_info in data.items():
             video_info = sorted(
                 video_info, key=lambda x: x['score'], reverse=True)
-            video_min_score = float('inf')
-            video_max_score = 0
             for result in video_info[:self.proposal_num]:
                 # if result['score'] < threshold:
                 #     break
@@ -268,10 +264,6 @@ class TruNetDetection:
                 prediction.append(prediction_item)
                 score_sum += result['score']
                 selected_proposal += 1
-                video_min_score = min(video_min_score, result['score'])
-                video_max_score = max(video_max_score, result['score'])
-            min_score_list.append(video_min_score)
-            max_score_list.append(video_max_score)
         return prediction
 
     def wrapper_compute_average_precision(self):
@@ -352,7 +344,7 @@ class TruNetDetection:
 
 def compute_average_precision_detection(ground_truth,
                                         prediction,
-                                        proposal_num=13,
+                                        proposal_num=100,
                                         tiou_thresholds=np.linspace(
                                             0.5, 0.95, 10)):
     """Compute average precision (detection task) between ground truth and
@@ -424,7 +416,7 @@ def compute_average_precision_detection(ground_truth,
 
             if fp[t_idx, idx] == 0 and tp[t_idx, idx] == 0:
                 fp[t_idx, idx] = 1
-    # shape: [num_thresholds, num_preds]
+
     tp_cumsum = np.cumsum(tp, axis=1).astype(np.float)
     fp_cumsum = np.cumsum(fp, axis=1).astype(np.float)
     recall_cumsum = tp_cumsum / num_positive

@@ -3,7 +3,7 @@ model = dict(
     type='TEM',
     temporal_dim=2000,
     boundary_ratio=0.1,
-    tem_feat_dim=400,
+    tem_feat_dim=4096,
     tem_hidden_dim=512,
     tem_match_threshold=0.5)
 # model training and testing settings
@@ -53,7 +53,7 @@ val_pipeline = [
 ]
 
 data = dict(
-    videos_per_gpu=16,
+    videos_per_gpu=8,
     workers_per_gpu=8,
     train_dataloader=dict(drop_last=True),
     val_dataloader=dict(videos_per_gpu=1),
@@ -76,16 +76,17 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='Adam', lr=0.001, weight_decay=0.0001)  # this lr is used for 1 gpus
+    type='SGD', lr=0.001 * 192 / 256, momentum=0.9,
+    weight_decay=0.0005)  # this lr is used for 32 gpus, batch_size 192
 
 optimizer_config = dict(grad_clip=None)
 # learning policy
-lr_config = dict(policy='step', step=7)
+lr_config = dict(policy='step', step=80)
 
-total_epochs = 20
-checkpoint_config = dict(interval=1, filename_tmpl='tem_epoch_{}.pth')
+total_epochs = 70
+checkpoint_config = dict(interval=10, filename_tmpl='tem_epoch_{}.pth')
 
-log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
+log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
