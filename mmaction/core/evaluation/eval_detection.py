@@ -240,7 +240,7 @@ class TruNetDetection:
             List: List containing the prediction instances (dictionaries).
         """
 
-        threshold = 0.9
+        # threshold = 0.9
 
         with open(prediction_filename, 'r') as f:
             data = json.load(f)
@@ -257,8 +257,8 @@ class TruNetDetection:
             video_min_score = float('inf')
             video_max_score = 0
             for result in video_info[:self.proposal_num]:
-                if result['score'] < threshold:
-                    break
+                # if result['score'] < threshold:
+                #     break
                 prediction_item = dict()
                 prediction_item['video-id'] = video_id
                 prediction_item['label'] = 0
@@ -428,6 +428,8 @@ def compute_average_precision_detection(ground_truth,
     tp_cumsum = np.cumsum(tp, axis=1).astype(np.float)
     fp_cumsum = np.cumsum(fp, axis=1).astype(np.float)
     recall_cumsum = tp_cumsum / num_positive
+
+    print(f'AR@AN={proposal_num}: {np.mean(recall_cumsum, axis=0)[-1]}')
 
     precision_cumsum = tp_cumsum / (tp_cumsum + fp_cumsum)
 
