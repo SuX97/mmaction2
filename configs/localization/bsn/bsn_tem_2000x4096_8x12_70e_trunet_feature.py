@@ -17,7 +17,7 @@ ann_file_train = 'data/train_meta.json'
 ann_file_val = 'data/val_meta.json'
 ann_file_test = 'data/val_meta.json'
 
-work_dir = 'work_dirs/bsn_tem_2000x4096_8x8_70e_trunet_feature/'
+work_dir = 'work_dirs/bsn_tem_2000x4096_8x12_70e_trunet_feature/'
 tem_results_dir = f'{work_dir}/tem_results/'
 
 test_pipeline = [
@@ -76,7 +76,7 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.001 * 8 * 2 * 4 / 256, momentum=0.9,
+    type='SGD', lr=0.001 * 8 * 3 * 4 / 256, momentum=0.9,
     weight_decay=0.0005)  # batch_size
 
 optimizer_config = dict(grad_clip=None)
