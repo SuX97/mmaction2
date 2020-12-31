@@ -120,8 +120,6 @@ class TEM(BaseLocalizer):
     def forward_train(self, raw_feature, label_action, label_start, label_end):
         """Define the computation performed at every call when training."""
         tem_output = self._forward(raw_feature)
-        import pdb
-        pdb.set_trace()
         score_action = tem_output[:, 0, :]
         score_start = tem_output[:, 1, :]
         score_end = tem_output[:, 2, :]
