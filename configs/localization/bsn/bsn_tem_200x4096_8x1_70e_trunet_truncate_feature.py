@@ -1,7 +1,7 @@
 # model settings
 model = dict(
     type='TEM',
-    temporal_dim=2000,
+    temporal_dim=200,
     boundary_ratio=0.1,
     tem_feat_dim=4096,
     tem_hidden_dim=512,
@@ -11,13 +11,13 @@ train_cfg = None
 test_cfg = dict(average_clips='score')
 # dataset settings
 dataset_type = 'TruNetDataset'
-data_root = 'data/train_mean_2000/'
-data_root_val = 'data/val_mean_2000/'
-ann_file_train = 'data/train_meta.json'
-ann_file_val = 'data/val_meta.json'
-ann_file_test = 'data/val_meta.json'
+data_root = 'data/train_mean_2000_10/'
+data_root_val = 'data/val_mean_2000_10/'
+ann_file_train = 'data/train_meta_10.json'
+ann_file_val = 'data/val_meta_10.json'
+ann_file_test = 'data/val_meta_10.json'
 
-work_dir = 'work_dirs/bsn_tem_2000x4096_lr0.01_8x12_70e_trunet_feature/'
+work_dir = 'work_dirs/bsn_tem_200x4096_8x1_70e_trunet_truncate_feature/'
 tem_results_dir = f'{work_dir}/tem_results/'
 
 test_pipeline = [
@@ -76,7 +76,7 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.01 * 8 * 3 * 4 / 256, momentum=0.9,
+    type='SGD', lr=0.001 * 8 / 256, momentum=0.9,
     weight_decay=0.0005)  # batch_size
 
 optimizer_config = dict(grad_clip=None)
@@ -86,11 +86,14 @@ lr_config = dict(policy='step', step=80)
 total_epochs = 70
 checkpoint_config = dict(interval=10, filename_tmpl='tem_epoch_{}.pth')
 
-log_config = dict(interval=5, hooks=[dict(type='TextLoggerHook')])
+log_config = dict(
+    interval=5,
+    hooks=[dict(type='TextLoggerHook'),
+           dict(type='TensorboardLoggerHook')])
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from = None
 resume_from = None
-workflow = [('train', 1), ('val', 1)]
+workflow = [('train', 1)]
 output_config = dict(out=tem_results_dir, output_format='csv')
