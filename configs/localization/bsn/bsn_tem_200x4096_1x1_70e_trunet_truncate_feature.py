@@ -87,7 +87,7 @@ total_epochs = 70
 checkpoint_config = dict(interval=10, filename_tmpl='tem_epoch_{}.pth')
 
 log_config = dict(
-    interval=5,
+    interval=100,
     hooks=[dict(type='TextLoggerHook'),
            dict(type='TensorboardLoggerHook')])
 # runtime settings
