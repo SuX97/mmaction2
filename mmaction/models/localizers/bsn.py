@@ -213,8 +213,8 @@ class TEM(BaseLocalizer):
                 return_loss=True):
         """Define the computation performed at every call."""
         if return_loss:
-            import pdb
-            pdb.set_trace()
+            # import pdb
+            # pdb.set_trace()
             label_action, label_start, label_end = (
                 self.generate_labels(gt_bbox))
             device = raw_feature.device
