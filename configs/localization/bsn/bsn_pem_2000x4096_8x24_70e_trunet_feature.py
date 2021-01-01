@@ -1,30 +1,33 @@
 # model settings
 model = dict(
     type='PEM',
-    pem_feat_dim=32,
+    pem_feat_dim=4096,
     pem_hidden_dim=256,
     pem_u_ratio_m=1,
     pem_u_ratio_l=2,
     pem_high_temporal_iou_threshold=0.6,
-    pem_low_temporal_iou_threshold=2.2,
+    pem_low_temporal_iou_threshold=0.2,
     soft_nms_alpha=0.75,
     soft_nms_low_threshold=0.65,
     soft_nms_high_threshold=0.9,
-    post_process_top_k=100)
+    post_process_top_k=100,
+    fc1_ratio=1,
+    fc2_ratio=1)
 # model training and testing settings
 train_cfg = None
 test_cfg = dict(average_clips='score')
 # dataset settings
-dataset_type = 'ActivityNetDataset'
-data_root = 'data/ActivityNet/activitynet_feature_cuhk/csv_mean_100/'
-data_root_val = 'data/ActivityNet/activitynet_feature_cuhk/csv_mean_100/'
-ann_file_train = 'data/ActivityNet/anet_anno_train.json'
-ann_file_val = 'data/ActivityNet/anet_anno_val.json'
-ann_file_test = 'data/ActivityNet/anet_anno_val.json'
+dataset_type = 'TruNetDataset'
+data_root = 'data/TruNetDataset/train_mean_2000/'
+data_root_val = 'data/TruNetDataset/val_mean_2000/'
+ann_file_train = 'data/TruNetDataset/train_meta.json'
+ann_file_val = 'data/TruNetDataset/val_meta.json'
+ann_file_test = 'data/TruNetDataset/val_meta.json'
 
-work_dir = 'work_dirs/bsn_400x100_20e_1x16_activitynet_feature/'
-pgm_proposals_dir = f'{work_dir}/pgm_proposals/'
-pgm_features_dir = f'{work_dir}/pgm_features/'
+work_dir = 'work_dirs/bsn_pem_2000x4096_8x24_70e_trunet_feature/'
+pgm_work_dir = 'work_dirs/bsn_pgm_2000x4096_trunet_feature/'
+pgm_proposals_dir = f'{pgm_work_dir}/pgm_proposals/'
+pgm_features_dir = f'{pgm_work_dir}/pgm_features/'
 
 test_pipeline = [
     dict(
@@ -37,12 +40,10 @@ test_pipeline = [
         keys=['bsp_feature', 'tmin', 'tmax', 'tmin_score', 'tmax_score'],
         meta_name='video_meta',
         meta_keys=[
-            'video_name', 'duration_second', 'duration_frame', 'annotations',
-            'feature_frame'
+            'video_name', 'duration_second', 'annotations'
         ]),
     dict(type='ToTensor', keys=['bsp_feature'])
 ]
-
 train_pipeline = [
     dict(
         type='LoadProposals',
@@ -60,7 +61,6 @@ train_pipeline = [
         fields=(dict(key='bsp_feature', stack=False),
                 dict(key='reference_temporal_iou', stack=False)))
 ]
-
 val_pipeline = [
     dict(
         type='LoadProposals',
@@ -72,13 +72,12 @@ val_pipeline = [
         keys=['bsp_feature', 'tmin', 'tmax', 'tmin_score', 'tmax_score'],
         meta_name='video_meta',
         meta_keys=[
-            'video_name', 'duration_second', 'duration_frame', 'annotations',
-            'feature_frame'
+            'video_name', 'duration_second', 'annotations'
         ]),
     dict(type='ToTensor', keys=['bsp_feature'])
 ]
 data = dict(
-    videos_per_gpu=16,
+    videos_per_gpu=8,
     workers_per_gpu=8,
     train_dataloader=dict(drop_last=True),
     val_dataloader=dict(videos_per_gpu=1),
@@ -100,19 +99,26 @@ data = dict(
         data_prefix=data_root))
 
 # optimizer
+# optimizer = dict(
+#     type='Adam', lr=0.01, weight_decay=0.00001)  # this lr is used for 1 gpus
 optimizer = dict(
-    type='Adam', lr=0.01, weight_decay=0.00001)  # this lr is used for 1 gpus
+    type='SGD', lr=0.001 * 8 * 3 * 8 / 256, momentum=0.9,
+    weight_decay=0.0005
+)
 
 optimizer_config = dict(grad_clip=None)
 # learning policy
-lr_config = dict(policy='step', step=10)
+lr_config = dict(policy='step', step=80)
 
-total_epochs = 20
-checkpoint_config = dict(interval=1, filename_tmpl='pem_epoch_{}.pth')
+total_epochs = 70
+checkpoint_config = dict(interval=10, filename_tmpl='pem_epoch_{}.pth')
 
-evaluation = dict(interval=1, metrics=['AR@AN'])
+# evaluation = dict(interval=1, metrics=['AR@AN'])
 
-log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
+log_config = dict(
+    interval=2,
+    hooks=[dict(type='TextLoggerHook'),
+           dict(type='TensorboardLoggerHook')])
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'

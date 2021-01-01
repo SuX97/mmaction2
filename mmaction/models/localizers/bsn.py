@@ -238,9 +238,9 @@ class PEM(BaseLocalizer):
     Args:
         pem_feat_dim (int): Feature dimension.
         pem_hidden_dim (int): Hidden layer dimension.
-        pem_u_ratio_m (float): Ratio for medium score proprosals to balance
+        pem_u_ratio_m (float): Ratio for medium score proposals to balance
             data.
-        pem_u_ratio_l (float): Ratio for low score proprosals to balance data.
+        pem_u_ratio_l (float): Ratio for low score proposals to balance data.
         pem_high_temporal_iou_threshold (float): High IoU threshold.
         pem_low_temporal_iou_threshold (float): Low IoU threshold.
         soft_nms_alpha (float): Soft NMS alpha.
