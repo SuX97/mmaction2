@@ -121,16 +121,13 @@ def main():
         ('Please specify at least one operation (save or eval the '
          'results) with the argument "--out" or "--eval"')
 
-    import pdb
-    pdb.set_trace()
-
-    if output_config.get('out', None):
-        out = output_config['out']
-        # make sure the dirname of the output path exists
-        mmcv.mkdir_or_exist(osp.dirname(out))
-        _, suffix = osp.splitext(out)
-        assert suffix[1:] in file_handlers, \
-            'The format of the output file should be json, pickle or yaml'
+    # if output_config.get('out', None):
+    #     out = output_config['out']
+    #     # make sure the dirname of the output path exists
+    #     mmcv.mkdir_or_exist(osp.dirname(out))
+    #     _, suffix = osp.splitext(out)
+    #     assert suffix[1:] in file_handlers, \
+    #         'The format of the output file should be json, pickle or yaml'
 
     # set cudnn benchmark
     if cfg.get('cudnn_benchmark', False):
