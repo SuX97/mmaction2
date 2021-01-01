@@ -174,6 +174,10 @@ def generate_bsp_feature(video_list,
 
     bsp_feature_dict = {}
     for video_index in video_list:
+
+        import pdb
+        pdb.set_trace()
+
         video_name = video_infos[video_index]['video_name']
 
         # Load temporal evaluation results
