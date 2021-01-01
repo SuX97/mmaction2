@@ -7,10 +7,10 @@ ann_file_val = 'data/TruNetDataset/val_meta.json'
 ann_file_test = 'data/TruNetDataset/val_meta.json'
 
 work_dir = 'work_dirs/bsn_pgm_2000x4096_trunet_feature/'
-tem_work_dir = 'work_dirs/bsn_tem_2000x4096_8x24_70e_trunet_feature'
-tem_results_dir = f'{tem_work_dir}/tem_results/'
-pgm_proposals_dir = f'{work_dir}/pgm_proposals/'
-pgm_features_dir = f'{work_dir}/pgm_features/'
+tem_work_dir = 'work_dirs/bsn_tem_2000x4096_8x24_70e_trunet_feature/'
+tem_results_dir = f'{tem_work_dir}tem_results/'
+pgm_proposals_dir = f'{work_dir}pgm_proposals/'
+pgm_features_dir = f'{work_dir}pgm_features/'
 
 temporal_scale = 2000
 pgm_proposals_cfg = dict(

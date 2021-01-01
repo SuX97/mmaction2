@@ -96,4 +96,4 @@ log_level = 'INFO'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
-output_config = dict(out=tem_results_dir, output_format='csv')
+output_config = dict(out=f'{tem_results_dir}/tem_results.csv', output_format='csv')
