@@ -1,10 +1,10 @@
 # dataset settings
 dataset_type = 'TruNetDataset'
-data_root = 'data/TruNetDataset/train_mean_2000/'
-data_root_val = 'data/TruNetDataset/val_mean_2000/'
-ann_file_train = 'data/TruNetDataset/train_meta.json'
-ann_file_val = 'data/TruNetDataset/val_meta.json'
-ann_file_test = 'data/TruNetDataset/val_meta.json'
+data_root = 'data/train_mean_2000/'
+data_root_val = 'data/val_mean_2000/'
+ann_file_train = 'data/train_meta.json'
+ann_file_val = 'data/val_meta.json'
+ann_file_test = 'data/val_meta.json'
 
 work_dir = 'work_dirs/bsn_pgm_2000x4096_trunet_feature/'
 tem_work_dir = 'work_dirs/bsn_tem_2000x4096_8x24_70e_trunet_feature/'
