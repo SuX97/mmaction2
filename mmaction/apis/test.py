@@ -66,8 +66,6 @@ def multi_gpu_test(model, data_loader, tmpdir=None, gpu_collect=True):
     for data in data_loader:
         with torch.no_grad():
             result = model(return_loss=False, **data)
-            import pdb
-            pdb.set_trace()
         results.extend(result)
 
         if rank == 0:
