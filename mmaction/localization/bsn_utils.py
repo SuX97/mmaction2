@@ -89,13 +89,16 @@ def generate_candidate_proposals(video_list,
 
         score = (new_props[:, 2] * new_props[:, 3]).reshape(-1, 1)
         new_props = np.concatenate((new_props, score), axis=1)
-
         new_props = new_props[new_props[:, -1].argsort()[::-1]]
         video_info = video_infos[video_index]
-        video_frame = video_info['duration_frame']
-        video_second = video_info['duration_second']
-        feature_frame = video_info['feature_frame']
-        corrected_second = float(feature_frame) / video_frame * video_second
+        # for activitynet dataset
+        # video_frame = video_info['duration_frame']
+        # video_second = video_info['duration_second']
+        # feature_frame = video_info['feature_frame']
+        # corrected_second = float(feature_frame) / video_frame * video_second
+
+        # for trunet dataset
+        corrected_second = float(video_info['duration_second'])
 
         gt_tmins = []
         gt_tmaxs = []
