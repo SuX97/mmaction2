@@ -1,7 +1,7 @@
 # model settings
 model = dict(
     type='PEM',
-    pem_feat_dim=4096,
+    pem_feat_dim=32,
     pem_hidden_dim=256,
     pem_u_ratio_m=1,
     pem_u_ratio_l=2,
