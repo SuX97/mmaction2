@@ -9,8 +9,14 @@ def inference():
                     "work_dirs/bsn_pem_2000x4096_8x24_70e_trunet_feature/latest.pth " \
                     "--eval AR@AN " \
                     "--cfg-options dist_params.port=29510 " \
-                    "pgm_proposals_dir='work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_train_proposals/' " \
-                    "pgm_features_dir='work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_train_features/' " \
+                    "test_pipeline[0].pgm_proposals_dir=" \
+                    "'work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_train_proposals/' " \
+                    "test_pipeline[0].pgm_features_dir=" \
+                    "'work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_train_features/' " \
+                    "val_pipeline[0].pgm_proposals_dir=" \
+                    "'work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_train_proposals/' " \
+                    "val_pipeline[0].pgm_features_dir=" \
+                    "'work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_train_features/' " \
                     "output_config.out='work_dirs/bsn_pem_2000x4096_8x24_70e_trunet_feature/train_results.json'"
     print(train_pem_cmd)
     os.system(train_pem_cmd)
@@ -36,8 +42,14 @@ def inference():
                   "work_dirs/bsn_pem_2000x4096_8x24_70e_trunet_feature/latest.pth " \
                   "--eval AR@AN " \
                   "--cfg-options dist_params.port=29510 " \
-                  "pgm_proposals_dir='work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_val_proposals/' " \
-                  "pgm_features_dir='work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_val_features/' " \
+                  "test_pipeline[0].pgm_proposals_dir=" \
+                  "'work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_val_proposals/' " \
+                  "test_pipeline[0].pgm_features_dir=" \
+                  "'work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_val_features/' " \
+                  "val_pipeline[0].pgm_proposals_dir=" \
+                  "'work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_val_proposals/' " \
+                  "val_pipeline[0].pgm_features_dir=" \
+                  "'work_dirs/bsn_pgm_2000x4096_trunet_feature/pgm_val_features/' " \
                   "output_config.out='work_dirs/bsn_pem_2000x4096_8x24_70e_trunet_feature/val_results.json'"
     print(val_pem_cmd)
     os.system(val_pem_cmd)
