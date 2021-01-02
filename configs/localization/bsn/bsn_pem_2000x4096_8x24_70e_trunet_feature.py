@@ -26,8 +26,8 @@ ann_file_test = 'data/val_meta.json'
 
 work_dir = 'work_dirs/bsn_pem_2000x4096_8x24_70e_trunet_feature/'
 pgm_work_dir = 'work_dirs/bsn_pgm_2000x4096_trunet_feature/'
-pgm_proposals_dir = f'{pgm_work_dir}/pgm_proposals/'
-pgm_features_dir = f'{pgm_work_dir}/pgm_features/'
+pgm_proposals_dir = f'{pgm_work_dir}/pgm_train_proposals/'
+pgm_features_dir = f'{pgm_work_dir}/pgm_train_features/'
 
 test_pipeline = [
     dict(
@@ -125,4 +125,4 @@ log_level = 'INFO'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
-output_config = dict(out=f'{work_dir}/results.json', output_format='json')
+output_config = dict(out=f'{work_dir}/train_results.json', output_format='json')
