@@ -8,9 +8,9 @@ ann_file_test = 'data/val_meta.json'
 
 work_dir = 'work_dirs/bsn_pgm_2000x4096_trunet_feature/'
 tem_work_dir = 'work_dirs/bsn_tem_2000x4096_8x24_70e_trunet_feature/'
-tem_results_dir = f'{tem_work_dir}/tem_results/'
-pgm_proposals_dir = f'{work_dir}/pgm_proposals/'
-pgm_features_dir = f'{work_dir}/pgm_features/'
+tem_results_dir = f'{tem_work_dir}/tem_val_results/'
+pgm_proposals_dir = f'{work_dir}/pgm_val_proposals/'
+pgm_features_dir = f'{work_dir}/pgm_val_features/'
 
 temporal_scale = 2000
 pgm_proposals_cfg = dict(

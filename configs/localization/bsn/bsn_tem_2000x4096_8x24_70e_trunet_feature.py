@@ -13,12 +13,9 @@ test_cfg = dict(average_clips='score')
 dataset_type = 'TruNetDataset'
 data_root = 'data/train_mean_2000/'
 data_root_val = 'data/val_mean_2000/'
-# data_root_val = data_root
 ann_file_train = 'data/train_meta.json'
 ann_file_val = 'data/val_meta.json'
-# ann_file_val = ann_file_train
 ann_file_test = 'data/val_meta.json'
-# ann_file_test = ann_file_train
 
 work_dir = 'work_dirs/bsn_tem_2000x4096_8x24_70e_trunet_feature/'
 tem_results_dir = f'{work_dir}/tem_results/'
