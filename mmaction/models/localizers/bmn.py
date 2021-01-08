@@ -300,11 +300,7 @@ class BMN(BaseLocalizer):
                                                 [self.tscale, self.tscale])
                 gt_iou_map.append(current_gt_iou_map)
             gt_iou_map = np.array(gt_iou_map).astype(np.float32)
-            try:
-                gt_iou_map = np.max(gt_iou_map, axis=0)
-            except ValueError:
-                import pdb
-                pdb.set_trace()
+            gt_iou_map = np.max(gt_iou_map, axis=0)
 
             gt_tmins = every_gt_bbox[:, 0]
             gt_tmaxs = every_gt_bbox[:, 1]
