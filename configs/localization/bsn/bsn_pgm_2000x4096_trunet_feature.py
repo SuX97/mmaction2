@@ -1,16 +1,15 @@
 # dataset settings
 dataset_type = 'TruNetDataset'
-data_root = 'data/train_mean_2000/'
-data_root_val = 'data/val_mean_2000/'
-ann_file_train = 'data/train_meta.json'
-ann_file_val = 'data/val_meta.json'
-ann_file_test = 'data/val_meta.json'
+data_root = 'data/TruNet/train_mean_2000/'
+data_root_val = 'data/TruNet/val_mean_2000/'
+ann_file_train = 'data/TruNet/train_meta.json'
+ann_file_val = 'data/TruNet/val_meta.json'
+ann_file_test = 'data/TruNet/val_meta.json'
 
-work_dir = 'work_dirs/bsn_pgm_2000x4096_trunet_feature/'
-tem_work_dir = 'work_dirs/bsn_tem_2000x4096_8x24_70e_trunet_feature/'
-tem_results_dir = f'{tem_work_dir}/tem_val_results/'
-pgm_proposals_dir = f'{work_dir}/pgm_val_proposals/'
-pgm_features_dir = f'{work_dir}/pgm_val_features/'
+work_dir = 'work_dirs/bsn_2000x4096_8x24_70e_trunet_feature/'
+tem_results_dir = f'{work_dir}/tem_results/'
+pgm_proposals_dir = f'{work_dir}/pgm_proposals/'
+pgm_features_dir = f'{work_dir}/pgm_features/'
 
 temporal_scale = 2000
 pgm_proposals_cfg = dict(

@@ -11,13 +11,13 @@ train_cfg = None
 test_cfg = dict(average_clips='score')
 # dataset settings
 dataset_type = 'TruNetDataset'
-data_root = 'data/train_mean_2000/'
-data_root_val = 'data/val_mean_2000/'
-ann_file_train = 'data/train_meta.json'
-ann_file_val = 'data/val_meta.json'
-ann_file_test = 'data/val_meta.json'
+data_root = 'data/TruNet/train_mean_2000/'
+data_root_val = 'data/TruNet/val_mean_2000/'
+ann_file_train = 'data/TruNet/train_meta.json'
+ann_file_val = 'data/TruNet/val_meta.json'
+ann_file_test = 'data/TruNet/val_meta.json'
 
-work_dir = 'work_dirs/bsn_tem_2000x4096_8x24_100e_trunet_feature/'
+work_dir = 'work_dirs/bsn_2000x4096_8x24_70e_trunet_feature/'
 tem_results_dir = f'{work_dir}/tem_results/'
 
 test_pipeline = [
@@ -83,7 +83,7 @@ optimizer_config = dict(grad_clip=None)
 # learning policy
 lr_config = dict(policy='step', step=80)
 
-total_epochs = 100
+total_epochs = 70
 checkpoint_config = dict(interval=10, filename_tmpl='tem_epoch_{}.pth')
 
 log_config = dict(

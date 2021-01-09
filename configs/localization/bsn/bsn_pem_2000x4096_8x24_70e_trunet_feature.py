@@ -18,19 +18,18 @@ train_cfg = None
 test_cfg = dict(average_clips='score')
 # dataset settings
 dataset_type = 'TruNetDataset'
-data_root = 'data/train_mean_2000/'
-data_root_val = 'data/val_mean_2000/'
+data_root = 'data/TruNet/train_mean_2000/'
+data_root_val = 'data/TruNet/val_mean_2000/'
 # data_root_val = data_root
-ann_file_train = 'data/train_meta.json'
-ann_file_val = 'data/val_meta.json'
-ann_file_test = 'data/val_meta.json'
+ann_file_train = 'data/TruNet/train_meta.json'
+ann_file_val = 'data/TruNet/val_meta.json'
+ann_file_test = 'data/TruNet/val_meta.json'
 # ann_file_val = ann_file_train
 # ann_file_test = ann_file_train
 
-work_dir = 'work_dirs/bsn_pem_2000x4096_8x24_70e_trunet_feature/'
-pgm_work_dir = 'work_dirs/bsn_pgm_2000x4096_trunet_feature/'
-pgm_proposals_dir = f'{pgm_work_dir}/pgm_val_proposals/'
-pgm_features_dir = f'{pgm_work_dir}/pgm_val_features/'
+work_dir = 'work_dirs/bsn_2000x4096_8x24_70e_trunet_feature/'
+pgm_proposals_dir = f'{work_dir}/pgm_proposals/'
+pgm_features_dir = f'{work_dir}/pgm_features/'
 
 test_pipeline = [
     dict(
@@ -128,4 +127,4 @@ log_level = 'INFO'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
-output_config = dict(out=f'{work_dir}/val_results.json', output_format='json')
+output_config = dict(out=f'{work_dir}/results.json', output_format='json')
