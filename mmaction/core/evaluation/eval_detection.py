@@ -421,7 +421,7 @@ def compute_average_precision_detection(ground_truth,
     fp_cumsum = np.cumsum(fp, axis=1).astype(np.float)
     recall_cumsum = tp_cumsum / num_positive
 
-    print(f'AR@AN={proposal_num}: {np.mean(recall_cumsum, axis=0)[-1]}')
+    # print(f'AR@AN={proposal_num}: {np.mean(recall_cumsum, axis=0)[-1]}')
 
     precision_cumsum = tp_cumsum / (tp_cumsum + fp_cumsum)
 
