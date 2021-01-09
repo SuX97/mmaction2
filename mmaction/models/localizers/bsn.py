@@ -341,8 +341,6 @@ class TEM(BaseLocalizer):
         Returns:
             torch.Tensor: The output of the module.
         """
-        import pdb
-        pdb.set_trace()
         x = F.relu(self.conv1_ratio * self.conv1(x))
         x = F.relu(self.conv2_ratio * self.conv2(x))
         x = torch.sigmoid(self.conv3_ratio * self.conv3(x))
