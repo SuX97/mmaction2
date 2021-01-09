@@ -43,13 +43,13 @@ args = None
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Report detection mAP for'
-                                     'ActivityNet proposal file')
-    # parser.add_argument('--proposal', type=str, help='proposal file')
+                                     'TruNet proposal file')
+    parser.add_argument('--proposal', type=str, help='proposal file')
     parser.add_argument(
         '--gt',
         type=str,
-        default='data/ActivityNet/'
-        'anet_anno_val.json',
+        default='data/TruNet/'
+        'val_meta.json',
         help='groundtruth file')
     # parser.add_argument(
     #     '--cls',
@@ -58,11 +58,11 @@ def parse_args():
     #     choices=['cuhk17_top1'],
     #     help='the way to assign label for each '
     #     'proposal')
-    parser.add_argument(
-        '--det-output',
-        type=str,
-        default='det_result.json',
-        help='the path to store detection results')
+    # parser.add_argument(
+    #     '--det-output',
+    #     type=str,
+    #     default='det_result.json',
+    #     help='the path to store detection results')
     parser.add_argument('--proposal-num', type=int, default=13)
     args = parser.parse_args()
     return args
@@ -83,7 +83,7 @@ def main():
     #       f'mAP: {mAP}\nAverage-mAP: {average_mAP}')
     trunet_detection = TruNetDetection(
         args.gt,
-        args.det_output,
+        args.proposal,
         args.proposal_num,
         tiou_thresholds=np.linspace(0.5, 0.95, 10),
         verbose=True)

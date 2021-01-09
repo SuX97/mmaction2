@@ -252,7 +252,8 @@ class TruNetDetection:
         for video_id, video_info in data.items():
             video_info = sorted(
                 video_info, key=lambda x: x['score'], reverse=True)
-            for result in video_info[:self.proposal_num]:
+            # for result in video_info[:self.proposal_num]:
+            for result in video_info:
                 # if result['score'] < threshold:
                 #     break
                 prediction_item = dict()
@@ -305,7 +306,7 @@ class TruNetDetection:
         self.mAP = self.ap.mean(axis=1)
         self.average_mAP = self.mAP.mean()
 
-        self.ARAN()
+        # self.ARAN()
 
         return self.mAP, self.average_mAP
 
