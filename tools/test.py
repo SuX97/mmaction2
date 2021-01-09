@@ -171,8 +171,8 @@ def main():
         model = fuse_conv_bn(model)
 
     if not distributed:
-        # model = MMDataParallel(model, device_ids=[0])
-        model = MMDataParallel(model)
+        model = MMDataParallel(model, device_ids=[0])
+        # model = MMDataParallel(model)
         outputs = single_gpu_test(model, data_loader)
     else:
         model = MMDistributedDataParallel(
