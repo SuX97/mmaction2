@@ -1,6 +1,6 @@
 # model settings
 model = dict(
-    type='TEM',
+    type='fcTEM',
     temporal_dim=2000,
     boundary_ratio=0.1,
     tem_feat_dim=4096,
