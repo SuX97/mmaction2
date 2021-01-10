@@ -1,8 +1,8 @@
 # dataset settings
 dataset_type = 'TruNetDataset'
 data_root = 'data/TruNet/train_mean_2000/'
-# data_root_val = 'data/TruNet/val_mean_2000/'
-data_root_val = data_root
+data_root_val = 'data/TruNet/val_mean_2000/'
+# data_root_val = data_root
 ann_file_train = 'data/TruNet/train_meta.json'
 ann_file_val = 'data/TruNet/val_meta.json'
 ann_file_test = 'data/TruNet/val_meta.json'
