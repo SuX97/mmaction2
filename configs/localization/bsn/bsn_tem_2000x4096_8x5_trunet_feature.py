@@ -76,7 +76,7 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.001 * 8 * 4 / 256, momentum=0.9,
+    type='SGD', lr=0.001 * 8 * 5 / 256, momentum=0.9,
     weight_decay=0.0005)  # batch_size
 
 optimizer_config = dict(grad_clip=None)
