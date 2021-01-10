@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os.path as osp
+import os
 import numpy as np
 import argparse
 import json
@@ -45,6 +46,16 @@ def statistic():
     print(f'train negative per video: {train_neg / train_num}, ratio: {train_neg / (train_pos + train_neg)}')
     print(f'val positive per video: {val_pos / val_num}, ratio: {val_pos / (val_pos + val_neg)}')
     print(f'val negative per video: {val_neg / val_num}, ratio: {val_neg / (val_pos + val_neg)}')
+
+
+def train_pem():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--threshold", type=float)
+    pgm_cmd = "python tools/bsn_proposal_generation.py " \
+              "configs/localization/bsn/bsn_pgm_2000x4096_8x5_trunet_feature.py " \
+              "--mode train"
+    os.system(pgm_cmd)
+    pem_cmd = ""
 
 
 if __name__ == '__main__':
