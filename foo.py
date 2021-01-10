@@ -6,7 +6,7 @@ import json
 from multiprocessing import Process, Manager
 
 
-def multi_statistic(meta, pgm_proposal, iou, dic):
+def multi_statistic(meta, pgm_proposal, iou, dic, train=True):
     with open(meta, 'r', encoding='utf-8') as f:
         train = json.load(f)
     train_files = [osp.join(pgm_proposal, key + '.csv') for key in train.keys()]
@@ -16,7 +16,10 @@ def multi_statistic(meta, pgm_proposal, iou, dic):
         match_iou = proposals[:, 5]
         train_pos += np.sum(match_iou > iou)
         train_neg += np.sum(match_iou <= iou)
-    dic['train'] = [train_num, train_pos, train_neg]
+    if train:
+        dic['train'] = [train_num, train_pos, train_neg]
+    else:
+        dic['val'] = [train_num, train_pos, train_neg]
 
 
 def statistic():
@@ -31,7 +34,7 @@ def statistic():
     train_meta, val_meta, pgm_proposal, iou = args.train, args.val, args.pgm_proposal, args.iou
     dic = Manager().dict()
     proc1 = Process(target=multi_statistic, args=(train_meta, pgm_proposal, iou, dic))
-    proc2 = Process(target=multi_statistic, args=(val_meta, pgm_proposal, iou, dic))
+    proc2 = Process(target=multi_statistic, args=(val_meta, pgm_proposal, iou, dic, False))
     proc1.start()
     proc2.start()
     proc1.join()

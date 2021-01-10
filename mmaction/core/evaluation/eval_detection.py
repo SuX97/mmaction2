@@ -306,7 +306,7 @@ class TruNetDetection:
         self.mAP = self.ap.mean(axis=1)
         self.average_mAP = self.mAP.mean()
 
-        # self.ARAN()
+        self.ARAN()
 
         return self.mAP, self.average_mAP
 
@@ -338,9 +338,11 @@ class TruNetDetection:
             total_num_proposals,
             max_avg_proposals=100,
             temporal_iou_thresholds=np.linspace(0.5, 0.95, 10))
-        print(f'AR@{self.proposal_num}: '
-              f'{np.mean(recall[:, self.proposal_num - 1])}')
-        print(f'auc: {auc}')
+        print(f'AR@1: {np.mean(recall[:, 0])}')
+        print(f'AR@5: {np.mean(recall[:, 4])}')
+        print(f'AR@10: {np.mean(recall[:, 9])}')
+        print(f'AR@100: {np.mean(recall[:, 99])}')
+        print(f'AUC: {auc}')
 
 
 def compute_average_precision_detection(ground_truth,
