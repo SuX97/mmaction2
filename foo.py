@@ -14,7 +14,7 @@ def statistic():
     parser.add_argument("--pgm_proposal", type=str, help="pgm_proposal path")
     parser.add_argument("--iou", type=float, help="iou threshold")
     args = parser.parse_args()
-    train_meta, val_meta, pgm_proposal, iou = args
+    train_meta, val_meta, pgm_proposal, iou = args.train, args.val, args.pgm_proposal, args.iou
     with open(train_meta, 'r', encoding='utf-8') as f:
         train = json.load(f)
     train_files = [osp.join(pgm_proposal, key + '.csv') for key in train.keys()]
