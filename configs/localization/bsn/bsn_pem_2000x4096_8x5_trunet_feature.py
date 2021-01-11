@@ -79,7 +79,7 @@ val_pipeline = [
     dict(type='ToTensor', keys=['bsp_feature'])
 ]
 data = dict(
-    videos_per_gpu=8,
+    videos_per_gpu=32,
     workers_per_gpu=8,
     train_dataloader=dict(drop_last=True),
     val_dataloader=dict(videos_per_gpu=1),
@@ -104,13 +104,21 @@ data = dict(
 # optimizer = dict(
 #     type='Adam', lr=0.01, weight_decay=0.00001)  # this lr is used for 1 gpus
 optimizer = dict(
-    type='SGD', lr=0.001 * 8 * 5 / 256, momentum=0.9,
+    type='SGD', lr=0.001 * 32 * 5 / 256, momentum=0.9,
     weight_decay=0.0005
 )
 
 optimizer_config = dict(grad_clip=None)
 # learning policy
-lr_config = dict(policy='step', step=80)
+# lr_config = dict(policy='step', step=())
+
+lr_config = dict(
+    policy='CosineAnnealing',
+    warmup='linear',
+    warmup_iters=5,
+    warmup_ratio=1.0 / 10,
+    min_lr_ratio=1e-5,
+    warmup_by_epoch=True)
 
 total_epochs = 70
 checkpoint_config = dict(interval=10, filename_tmpl='pem_epoch_{}.pth')
