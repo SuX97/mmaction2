@@ -79,7 +79,7 @@ val_pipeline = [
     dict(type='ToTensor', keys=['bsp_feature'])
 ]
 data = dict(
-    videos_per_gpu=32,
+    videos_per_gpu=256,
     workers_per_gpu=8,
     train_dataloader=dict(drop_last=True),
     val_dataloader=dict(videos_per_gpu=1),
@@ -104,7 +104,7 @@ data = dict(
 # optimizer = dict(
 #     type='Adam', lr=0.01, weight_decay=0.00001)  # this lr is used for 1 gpus
 optimizer = dict(
-    type='SGD', lr=0.001 * 32 * 1 / 256, momentum=0.9,
+    type='SGD', lr=0.001 * 256 * 1 / 256, momentum=0.9,
     weight_decay=0.0005
 )
 
