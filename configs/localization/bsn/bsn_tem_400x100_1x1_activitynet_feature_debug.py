@@ -18,7 +18,7 @@ ann_file_val = 'data/ActivityNet/anet_anno_val.json'
 # ann_file_test = 'data/ActivityNet/anet_anno_full.json'
 ann_file_test = ann_file_val
 
-work_dir = 'work_dirs/bsn_400x100_1x16_20e_activitynet_feature/'
+work_dir = 'work_dirs/bsn_400x100_1x1_activitynet_feature_debug/'
 tem_results_dir = f'{work_dir}/tem_results/'
 
 test_pipeline = [
@@ -54,7 +54,7 @@ val_pipeline = [
 ]
 
 data = dict(
-    videos_per_gpu=16,
+    videos_per_gpu=1,
     workers_per_gpu=8,
     train_dataloader=dict(drop_last=True),
     val_dataloader=dict(videos_per_gpu=1),
