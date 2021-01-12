@@ -226,6 +226,8 @@ class fcTEM(BaseLocalizer):
                 video_meta=None,
                 return_loss=True):
         """Define the computation performed at every call."""
+        import pdb
+        pdb.set_trace()
         if return_loss:
             label_action, label_start, label_end = (
                 self.generate_labels(gt_bbox))
