@@ -93,7 +93,7 @@ lr_config = dict(
     min_lr_ratio=1e-5,
     warmup_by_epoch=True)
 
-total_epochs = 1
+total_epochs = 70
 checkpoint_config = dict(interval=10, filename_tmpl='tem_epoch_{}.pth')
 
 log_config = dict(
