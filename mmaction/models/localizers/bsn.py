@@ -2,6 +2,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import os.path as osp
+import os
 
 from ...localization import temporal_iop
 from ..builder import build_loss
@@ -226,11 +228,20 @@ class fcTEM(BaseLocalizer):
                 video_meta=None,
                 return_loss=True):
         """Define the computation performed at every call."""
-        import pdb
-        pdb.set_trace()
+        dir_name = 'trunet'
+        if not osp.exists(dir_name):
+            os.makedirs(dir_name)
         if return_loss:
             label_action, label_start, label_end = (
                 self.generate_labels(gt_bbox))
+            name = video_meta[0]['video_name']
+            action_name, start_name, end_name = name + '_action.npy', name+'_start.npy', name+'_end.npy'
+            with open(osp.join(dir_name, action_name), 'wb') as f:
+                np.save(f, label_action)
+            with open(osp.join(dir_name, start_name), 'wb') as f:
+                np.save(f, label_start)
+            with open(osp.join(dir_name, end_name), 'wb') as f:
+                np.save(f, label_end)
             device = raw_feature.device
             label_action = label_action.to(device)
             label_start = label_start.to(device)
