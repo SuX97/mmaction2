@@ -146,7 +146,43 @@ class ActivityNetDetection:
         self.mAP = self.ap.mean(axis=1)
         self.average_mAP = self.mAP.mean()
 
+        self.ARAN()
+
         return self.mAP, self.average_mAP
+
+    def ARAN(self):
+        # import ground truth by array
+        with open(self.ground_truth_filename, 'r') as f:
+            data = json.load(f)
+        ground_truth = dict()
+        for video_id, video_info in data.items():
+            vinfo = []
+            for anno in video_info['annotations']:
+                vinfo.append([anno['segment'][0], anno['segment'][1]])
+            ground_truth[video_id] = np.array(vinfo)
+
+        with open(self.prediction_filename, 'r') as f:
+            data = json.load(f)
+        prediction = dict()
+        total_num_proposals = 0
+        for video_id, video_info in data.items():
+            vinfo = []
+            for anno in video_info:
+                total_num_proposals += 1
+                vinfo.append(
+                    [anno['segment'][0], anno['segment'][1], anno['score']])
+            prediction[video_id] = np.array(vinfo)
+        recall, _, _, auc = average_recall_at_avg_proposals(
+            ground_truth,
+            prediction,
+            total_num_proposals,
+            max_avg_proposals=100,
+            temporal_iou_thresholds=np.linspace(0.5, 0.95, 10))
+        print(f'AR@1: {np.mean(recall[:, 0])}')
+        print(f'AR@5: {np.mean(recall[:, 4])}')
+        print(f'AR@10: {np.mean(recall[:, 9])}')
+        print(f'AR@100: {np.mean(recall[:, 99])}')
+        print(f'AUC: {auc}')
 
 
 class TruNetDetection:
