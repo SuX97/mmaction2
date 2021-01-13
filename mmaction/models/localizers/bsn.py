@@ -401,8 +401,9 @@ class TEM(BaseLocalizer):
             gt_tmaxs = every_gt_bbox[:, 1].cpu().numpy()
 
             gt_lens = gt_tmaxs - gt_tmins
-            gt_len_pad = np.maximum(1. / self.temporal_dim,
-                                    self.boundary_ratio * gt_lens)
+            # gt_len_pad = np.maximum(1. / self.temporal_dim,
+            #                         self.boundary_ratio * gt_lens)
+            gt_len_pad = 2. / self.temporal_dim
 
             gt_start_bboxs = np.stack(
                 (gt_tmins - gt_len_pad / 2, gt_tmins + gt_len_pad / 2), axis=1)
@@ -443,20 +444,9 @@ class TEM(BaseLocalizer):
                 video_meta=None,
                 return_loss=True):
         """Define the computation performed at every call."""
-        dir_name = 'trunet'
-        if not osp.exists(dir_name):
-            os.makedirs(dir_name)
         if return_loss:
             label_action, label_start, label_end = (
                 self.generate_labels(gt_bbox))
-            name = video_meta[0]['video_name']
-            action_name, start_name, end_name = name + '_action.npy', name + '_start.npy', name + '_end.npy'
-            with open(osp.join(dir_name, action_name), 'wb') as f:
-                np.save(f, label_action)
-            with open(osp.join(dir_name, start_name), 'wb') as f:
-                np.save(f, label_start)
-            with open(osp.join(dir_name, end_name), 'wb') as f:
-                np.save(f, label_end)
             device = raw_feature.device
             label_action = label_action.to(device)
             label_start = label_start.to(device)
