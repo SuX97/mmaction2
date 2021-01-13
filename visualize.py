@@ -9,6 +9,8 @@ def draw(direct):
     # tem_results 文件所在上级目录  xxx.csv
     tem_results = osp.join(direct, 'tem_results')
     figure_dir = osp.join(direct, 'tem_figure')
+    if not osp.exists(figure_dir):
+        os.makedirs(figure_dir)
     files = [osp.join(tem_results, file)
              for file in os.listdir(tem_results)][:100]
     for file in files:
