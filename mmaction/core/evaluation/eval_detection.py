@@ -349,29 +349,33 @@ class TruNetDetection:
     def ARAN(self):
         # import ground truth by array
         with open(self.ground_truth_filename, 'r') as f:
-            data = json.load(f)
-        ground_truth = dict()
-        for video_id, video_info in data.items():
-            vinfo = []
-            for anno in video_info['annotations']:
-                vinfo.append([anno['segment'][0], anno['segment'][1]])
-            ground_truth[video_id] = np.array(vinfo)
+            video_infos = json.load(f)
+        ground_truth = {}
+        for video_name, video_info in video_infos.items():
+            video_id = video_name[2:]
+            this_video_ground_truths = []
+            for ann in video_info['annotations']:
+                t_start, t_end = ann['segment']
+                label = ann['label']
+                this_video_ground_truths.append([t_start, t_end, label])
+            ground_truth[video_id] = np.array(this_video_ground_truths)
 
         with open(self.prediction_filename, 'r') as f:
-            data = json.load(f)
-        prediction = dict()
-        total_num_proposals = 0
-        for video_id, video_info in data.items():
-            vinfo = []
-            for anno in video_info:
-                total_num_proposals += 1
-                vinfo.append(
-                    [anno['segment'][0], anno['segment'][1], anno['score']])
-            prediction[video_id] = np.array(vinfo)
+            results = json.load(f)['results']
+        proposals = {}
+        num_proposals = 0
+        for video_id, result in results.items():
+            this_video_proposals = []
+            for proposal in result:
+                t_start, t_end = proposal['segment']
+                score = proposal['score']
+                this_video_proposals.append([t_start, t_end, score])
+                num_proposals += 1
+            proposals[video_id] = np.array(this_video_proposals)
         recall, _, _, auc = average_recall_at_avg_proposals(
             ground_truth,
-            prediction,
-            total_num_proposals,
+            proposals,
+            num_proposals,
             max_avg_proposals=100,
             temporal_iou_thresholds=np.linspace(0.5, 0.95, 10))
         print(f'AR@1: {np.mean(recall[:, 0])}')
