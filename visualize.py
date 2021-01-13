@@ -27,14 +27,15 @@ def draw(direct, train_meta):
         duration = float(info['duration_second'])
         annos = np.array([anno['segment'] for anno in info['annotations']])
         annos = (annos / duration * length).astype(int)
-        print(annos)
+        # print(annos)
         ann_start, ann_end, ann_action = np.zeros(length), np.zeros(
             length), np.zeros(length)
         # ann_start[np.maximum(0, np.minimum(annos[:, 0], 99))] = 1
         # ann_end[np.maximum(0, np.minimum(annos[:, 1], 99))] = 1
         ann_start[np.clip(annos[:, 0], 0, 99)] = 1
         ann_end[np.clip(annos[:, 1], 0, 99)] = 1
-        print(ann_start)
+        # print(ann_start)
+        print(np.clip(annos[:, 0], 0, 99))
         for a in annos:
             ann_action[a[0]:a[1]] = 1
         # if 'activitynet' in direct:
