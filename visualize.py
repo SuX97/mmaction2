@@ -84,7 +84,7 @@ def draw(direct, train_meta):
 if __name__ == '__main__':
     # draw('work_dirs/bsn_2000x4096_8x5_trunet_feature',
     #      'data/TruNet/train_meta.json')
-    draw('work_dirs/bsn_400x100_32x3_20e_activitynet_feature',
-         'data/ActivityNet/anet_anno_train.json')
+    # draw('work_dirs/bsn_400x100_32x3_20e_activitynet_feature',
+    #      'data/ActivityNet/anet_anno_train.json')
     draw('work_dirs/bsn_2000x4096_32x3_70e_trunet_feature',
          'data/TruNet/train_meta.json')
