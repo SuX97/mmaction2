@@ -29,8 +29,8 @@ def draw(direct, train_meta):
         annos = (annos / duration * length).astype(int)
         ann_start, ann_end, ann_action = np.zeros(length), np.zeros(
             length), np.zeros(length)
-        ann_start[annos[:, 0]] = 1
-        ann_end[annos[:, 1]] = 1
+        ann_start[np.maximum(0, np.minimum(annos[:, 0], 99))] = 1
+        ann_end[np.maximum(0, np.minimum(annos[:, 1], 99))] = 1
         for a in annos:
             ann_action[a[0]:a[1]] = 1
         # if 'activitynet' in direct:
