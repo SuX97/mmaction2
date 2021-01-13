@@ -1,7 +1,6 @@
 import io
 import os
 import os.path as osp
-import pickle
 import shutil
 import warnings
 
@@ -444,6 +443,8 @@ class SampleAVAFrames(SampleFrames):
         results['frame_inds'] = np.array(frame_inds, dtype=np.int)
         results['clip_len'] = self.clip_len
         results['frame_interval'] = self.frame_interval
+        results['num_clips'] = 1
+        results['crop_quadruple'] = np.array([0, 0, 1, 1], dtype=np.float32)
         return results
 
     def __repr__(self):
@@ -1152,6 +1153,18 @@ class RawFrameDecode:
         results['original_shape'] = imgs[0].shape[:2]
         results['img_shape'] = imgs[0].shape[:2]
 
+        # we resize the gt_bboxes and proposals to their real scale
+        if 'gt_bboxes' in results:
+            h, w = results['img_shape']
+            scale_factor = np.array([w, h, w, h])
+            gt_bboxes = results['gt_bboxes']
+            gt_bboxes = (gt_bboxes * scale_factor).astype(np.float32)
+            results['gt_bboxes'] = gt_bboxes
+            if 'proposals' in results and results['proposals'] is not None:
+                proposals = results['proposals']
+                proposals = (proposals * scale_factor).astype(np.float32)
+                results['proposals'] = proposals
+
         return results
 
     def __repr__(self):
@@ -1486,11 +1499,11 @@ class LoadLocalizationFeature:
     are "raw_feature".
 
     Args:
-        raw_feature_ext (str): Raw feature file extension.  Default: '.pkl'.
+        raw_feature_ext (str): Raw feature file extension.  Default: '.csv'.
     """
 
-    def __init__(self, raw_feature_ext='.pkl'):
-        valid_raw_feature_ext = ('.pkl', )
+    def __init__(self, raw_feature_ext='.csv'):
+        valid_raw_feature_ext = ('.csv', )
         if raw_feature_ext not in valid_raw_feature_ext:
             raise NotImplementedError
         self.raw_feature_ext = raw_feature_ext
@@ -1506,12 +1519,10 @@ class LoadLocalizationFeature:
         data_prefix = results['data_prefix']
 
         data_path = osp.join(data_prefix, video_name + self.raw_feature_ext)
-        # raw_feature = np.loadtxt(
-        #     data_path, dtype=np.float32, delimiter=',', skiprows=1)
-        raw_feature = pickle.load(open(data_path, 'rb'), encoding='bytes')
+        raw_feature = np.loadtxt(
+            data_path, dtype=np.float32, delimiter=',', skiprows=1)
 
-        results['raw_feature'] = np.transpose(
-            raw_feature.astype(np.float32), (1, 0))  # 4096, 2000
+        results['raw_feature'] = np.transpose(raw_feature, (1, 0))
 
         return results
 
@@ -1525,8 +1536,8 @@ class LoadLocalizationFeature:
 class GenerateLocalizationLabels:
     """Load video label for localizer with given video_name list.
 
-    Required keys are "duration_second", "annotations", added or modified keys
-    are "gt_bbox".
+    Required keys are "duration_frame", "duration_second", "feature_frame",
+    "annotations", added or modified keys are "gt_bbox".
     """
 
     def __call__(self, results):
@@ -1536,19 +1547,19 @@ class GenerateLocalizationLabels:
             results (dict): The resulting dict to be modified and passed
                 to the next transform in pipeline.
         """
-        # video_frame = results['duration_frame']
+        video_frame = results['duration_frame']
         video_second = results['duration_second']
-        # feature_frame = results['feature_frame']
-        # corrected_second = float(feature_frame) / video_frame * video_second
+        feature_frame = results['feature_frame']
+        corrected_second = float(feature_frame) / video_frame * video_second
         annotations = results['annotations']
 
         gt_bbox = []
 
         for annotation in annotations:
             current_start = max(
-                min(1, annotation['segment'][0] / video_second), 0)
+                min(1, annotation['segment'][0] / corrected_second), 0)
             current_end = max(
-                min(1, annotation['segment'][1] / video_second), 0)
+                min(1, annotation['segment'][1] / corrected_second), 0)
             gt_bbox.append([current_start, current_end])
 
         gt_bbox = np.array(gt_bbox)
