@@ -27,6 +27,7 @@ def draw(direct, train_meta):
         duration = float(info['duration_second'])
         annos = np.array([anno['segment'] for anno in info['annotations']])
         annos = (annos / duration * length).astype(int)
+        print(annos)
         ann_start, ann_end, ann_action = np.zeros(length), np.zeros(
             length), np.zeros(length)
         # ann_start[np.maximum(0, np.minimum(annos[:, 0], 99))] = 1
