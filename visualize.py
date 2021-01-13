@@ -34,6 +34,7 @@ def draw(direct, train_meta):
         # ann_end[np.maximum(0, np.minimum(annos[:, 1], 99))] = 1
         ann_start[np.clip(annos[:, 0], 0, 99)] = 1
         ann_end[np.clip(annos[:, 1], 0, 99)] = 1
+        print(ann_start)
         for a in annos:
             ann_action[a[0]:a[1]] = 1
         # if 'activitynet' in direct:
