@@ -24,7 +24,7 @@ work_dir = 'work_dirs/bsn_2000x4096_32x3_70e_trunet_feature/'
 tem_results_dir = f'{work_dir}/tem_results/'
 
 test_pipeline = [
-    dict(type='LoadLocalizationFeature'),
+    dict(type='LoadTruNetLocalizationFeature'),
     dict(
         type='Collect',
         keys=['raw_feature'],
@@ -33,8 +33,8 @@ test_pipeline = [
     dict(type='ToTensor', keys=['raw_feature'])
 ]
 train_pipeline = [
-    dict(type='LoadLocalizationFeature'),
-    dict(type='GenerateLocalizationLabels'),
+    dict(type='LoadTruNetLocalizationFeature'),
+    dict(type='GenerateTruNetLocalizationLabels'),
     dict(
         type='Collect',
         keys=['raw_feature', 'gt_bbox'],
@@ -44,8 +44,8 @@ train_pipeline = [
     dict(type='ToDataContainer', fields=[dict(key='gt_bbox', stack=False)])
 ]
 val_pipeline = [
-    dict(type='LoadLocalizationFeature'),
-    dict(type='GenerateLocalizationLabels'),
+    dict(type='LoadTruNetLocalizationFeature'),
+    dict(type='GenerateTruNetLocalizationLabels'),
     dict(
         type='Collect',
         keys=['raw_feature', 'gt_bbox'],
