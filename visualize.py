@@ -1,3 +1,4 @@
+import json
 import os
 import os.path as osp
 
@@ -5,63 +6,83 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def draw(direct):
+def draw(direct, train_meta):
     # tem_results 文件所在上级目录  xxx.csv
     tem_results = osp.join(direct, 'tem_results')
     figure_dir = osp.join(direct, 'tem_figure')
     if not osp.exists(figure_dir):
         os.makedirs(figure_dir)
-    files = [osp.join(tem_results, file)
-             for file in os.listdir(tem_results)][:100]
+    with open(train_meta, 'r') as f:
+        dic = json.load(f)
+    csv_files = os.listdir(tem_results)
+    files = [file for file in dic.keys() if file + '.csv' in csv_files][:100]
+    # files = [osp.join(tem_results, file)
+    #          for file in os.listdir(tem_results)][:100]
     for file in files:
+        info = dic[file]
+        file = osp.join(tem_results, file + '.csv')
         result = np.loadtxt(file, dtype=np.float32, delimiter=',', skiprows=1)
         action, start, end = result[:, 0], result[:, 1], result[:, 2]
+        length = len(action)
+        duration = float(info['duration_second'])
+        annos = np.array([anno['segment'] for anno in info['annotations']])
+        annos = (annos / duration * length).astype(int)
+        ann_start, ann_end, ann_action = np.zeros(length), np.zeros(
+            length), np.zeros(length)
+        ann_start[annos[:, 0]] = 1
+        ann_end[annos[:, 1]] = 1
+        for a in annos:
+            ann_action[a[0]:a[1]] = 1
+        # if 'activitynet' in direct:
+        action_file = osp.join(
+            figure_dir,
+            osp.splitext(osp.basename(file))[0] + '_action.png')
+        plt.figure()
+        plt.plot(np.array(range(length)), action)
+        plt.plot(np.array(range(length)), ann_action)
+        plt.savefig(action_file)
 
-        if 'activitynet' in direct:
-            action_file = osp.join(
-                figure_dir,
-                osp.splitext(osp.basename(file))[0] + '_action.png')
-            plt.figure()
-            plt.plot(np.array(range(len(action))), action)
-            plt.savefig(action_file)
+        start_file = osp.join(
+            figure_dir,
+            osp.splitext(osp.basename(file))[0] + '_start.png')
+        plt.figure()
+        plt.plot(np.array(range(length)), start)
+        plt.plot(np.array(range(length)), ann_start)
+        plt.savefig(start_file)
 
-            start_file = osp.join(
-                figure_dir,
-                osp.splitext(osp.basename(file))[0] + '_start.png')
-            plt.figure()
-            plt.plot(np.array(range(len(start))), start)
-            plt.savefig(start_file)
-
-            end_file = osp.join(
-                figure_dir,
-                osp.splitext(osp.basename(file))[0] + '_end.png')
-            plt.figure()
-            plt.plot(np.array(range(len(end))), end)
-            plt.savefig(end_file)
-        else:
-            action_file = osp.join(
-                figure_dir,
-                osp.splitext(osp.basename(file))[0] + '_action_100.png')
-            plt.figure()
-            plt.plot(np.array(range(len(action[:100]))), action[:100])
-            plt.savefig(action_file)
-
-            start_file = osp.join(
-                figure_dir,
-                osp.splitext(osp.basename(file))[0] + '_start_100.png')
-            plt.figure()
-            plt.plot(np.array(range(len(start[:100]))), start[:100])
-            plt.savefig(start_file)
-
-            end_file = osp.join(
-                figure_dir,
-                osp.splitext(osp.basename(file))[0] + '_end_100.png')
-            plt.figure()
-            plt.plot(np.array(range(len(end[:100]))), end[:100])
-            plt.savefig(end_file)
+        end_file = osp.join(figure_dir,
+                            osp.splitext(osp.basename(file))[0] + '_end.png')
+        plt.figure()
+        plt.plot(np.array(range(length)), end)
+        plt.plot(np.array(range(length)), ann_end)
+        plt.savefig(end_file)
+        # else:
+        #     action_file = osp.join(
+        #         figure_dir,
+        #         osp.splitext(osp.basename(file))[0] + '_action_100.png')
+        #     plt.figure()
+        #     plt.plot(np.array(range(len(action[:100]))), action[:100])
+        #     plt.savefig(action_file)
+        #
+        #     start_file = osp.join(
+        #         figure_dir,
+        #         osp.splitext(osp.basename(file))[0] + '_start_100.png')
+        #     plt.figure()
+        #     plt.plot(np.array(range(len(start[:100]))), start[:100])
+        #     plt.savefig(start_file)
+        #
+        #     end_file = osp.join(
+        #         figure_dir,
+        #         osp.splitext(osp.basename(file))[0] + '_end_100.png')
+        #     plt.figure()
+        #     plt.plot(np.array(range(len(end[:100]))), end[:100])
+        #     plt.savefig(end_file)
 
 
 if __name__ == '__main__':
-    # draw('work_dirs/bsn_2000x4096_8x5_trunet_feature')
-    # draw('work_dirs/bsn_400x100_32x3_20e_activitynet_feature')
-    draw('work_dirs/bsn_2000x4096_32x3_70e_trunet_feature')
+    draw('work_dirs/bsn_2000x4096_8x5_trunet_feature',
+         'data/TruNet/train_meta.json')
+    draw('work_dirs/bsn_400x100_32x3_20e_activitynet_feature',
+         'data/ActivityNet/anet_anno_train.json')
+    draw('work_dirs/bsn_2000x4096_32x3_70e_trunet_feature',
+         'data/TruNet/train_meta.json')
