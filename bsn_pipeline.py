@@ -5,13 +5,13 @@ import argparse
 def train_bsn():
     # tem_config: ann_file_val=ann_file_train, ann_file_test=ann_file_train
     # tem_config: data_root_val=data_root
-    tem_cmd = f"CUDA_VISIBLE_DEVICES={','.join(CUDA)} PORT=29501 " \
-              "bash tools/dist_train.sh " \
-              f"configs/localization/bsn/bsn_tem_{shape}_{batch}x{gpus}_{epoch}e_{dataset}_feature.py {len(CUDA)}"
-    os.system(tem_cmd)
+    # tem_cmd = f"CUDA_VISIBLE_DEVICES={','.join(CUDA)} PORT=29501 " \
+    #           "bash tools/dist_train.sh " \
+    #           f"configs/localization/bsn/bsn_tem_{shape}_{batch}x{gpus}_{epoch}e_{dataset}_feature.py {len(CUDA)}"
+    # os.system(tem_cmd)
 
-    os.system(f'mv work_dirs/bsn_{shape}_{batch}x{gpus}_{epoch}e_{dataset}_feature/latest.pth '
-              f'work_dirs/bsn_{shape}_{batch}x{gpus}_{epoch}e_{dataset}_feature/tem_latest.pth')
+    # os.system(f'mv work_dirs/bsn_{shape}_{batch}x{gpus}_{epoch}e_{dataset}_feature/latest.pth '
+    #           f'work_dirs/bsn_{shape}_{batch}x{gpus}_{epoch}e_{dataset}_feature/tem_latest.pth')
 
     tem_generate = f"CUDA_VISIBLE_DEVICES={CUDA[0]} PORT={port} " \
                    "bash tools/dist_test.sh " \
