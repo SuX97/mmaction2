@@ -2,8 +2,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import os.path as osp
-import os
 
 from ...localization import temporal_iop
 from ..builder import build_loss
@@ -64,9 +62,7 @@ class fcTEM(BaseLocalizer):
         self.conv3_ratio = conv3_ratio
 
         self.fc = nn.Linear(
-            in_features=self.feat_dim,
-            out_features=self.feature_size
-        )
+            in_features=self.feat_dim, out_features=self.feature_size)
 
         self.conv1 = nn.Conv1d(
             in_channels=self.feature_size,
@@ -400,10 +396,11 @@ class TEM(BaseLocalizer):
             gt_tmins = every_gt_bbox[:, 0].cpu().numpy()
             gt_tmaxs = every_gt_bbox[:, 1].cpu().numpy()
 
-            gt_lens = gt_tmaxs - gt_tmins
+            # gt_lens = gt_tmaxs - gt_tmins
             # gt_len_pad = np.maximum(1. / self.temporal_dim,
             #                         self.boundary_ratio * gt_lens)
-            gt_len_pad = 2. / self.temporal_dim
+            # gt_len_pad = 2. / self.temporal_dim
+            gt_len_pad = 0
 
             gt_start_bboxs = np.stack(
                 (gt_tmins - gt_len_pad / 2, gt_tmins + gt_len_pad / 2), axis=1)
