@@ -307,6 +307,8 @@ class _TEM_(BaseLocalizer):
             stride=1,
             padding=0)
         # self.anchors_tmins, self.anchors_tmaxs = self._temporal_anchors()
+        self.action_num, self.start_num, self.end_num = 0, 0, 0
+        self.total_temporal = 0
 
     def _temporal_anchors(self, temporal_dim, tmin_offset=0., tmax_offset=1.):
         """Generate temporal anchors.
@@ -393,7 +395,8 @@ class _TEM_(BaseLocalizer):
         match_score_start_list = []
         match_score_end_list = []
 
-        self.anchors_tmins, self.anchors_tmaxs = self._temporal_anchors(temporal_dim)
+        self.anchors_tmins, self.anchors_tmaxs = self._temporal_anchors(
+            temporal_dim)
 
         for every_gt_bbox in gt_bbox:
             gt_tmins = every_gt_bbox[:, 0].cpu().numpy()
@@ -435,6 +438,10 @@ class _TEM_(BaseLocalizer):
         match_score_action_list = torch.Tensor(match_score_action_list)
         match_score_start_list = torch.Tensor(match_score_start_list)
         match_score_end_list = torch.Tensor(match_score_end_list)
+        self.action_num += sum(match_score_action_list)
+        self.start_num += sum(match_score_start_list)
+        self.end_num += sum(match_score_end_list)
+        self.total_temporal += temporal_dim
         return (match_score_action_list, match_score_start_list,
                 match_score_end_list)
 
