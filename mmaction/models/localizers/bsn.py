@@ -438,9 +438,9 @@ class _TEM_(BaseLocalizer):
         match_score_action_list = torch.Tensor(match_score_action_list)
         match_score_start_list = torch.Tensor(match_score_start_list)
         match_score_end_list = torch.Tensor(match_score_end_list)
-        self.action_num += np.sum(match_score_action_list)
-        self.start_num += np.sum(match_score_start_list)
-        self.end_num += np.sum(match_score_end_list)
+        self.action_num += float(torch.sum(match_score_action_list))
+        self.start_num += float(torch.sum(match_score_start_list))
+        self.end_num += float(torch.sum(match_score_end_list))
         self.total_temporal += temporal_dim
         return (match_score_action_list, match_score_start_list,
                 match_score_end_list)
