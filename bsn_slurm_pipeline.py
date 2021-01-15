@@ -100,7 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('--GPUS', type=int)
     parser.add_argument('--GPUS_PER_NODE', type=int)
     parser.add_argument('--part', type=str)
-    parser.add_argument('--job-name', type=int)
+    parser.add_argument('--job-name', type=str)
     parser.add_argument('--port', type=int)
     parser.add_argument('--shape', type=str)
     parser.add_argument('--batch', type=int)
