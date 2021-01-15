@@ -18,8 +18,8 @@ train_cfg = None
 test_cfg = dict(average_clips='score')
 # dataset settings
 dataset_type = 'TruNetDataset'
-data_root = 'data/TruNet/train_mean_2000/'
-data_root_val = 'data/TruNet/val_mean_2000/'
+data_root = 'data/TruNet/train_image_resnet50_feature/'
+data_root_val = 'data/TruNet/val_image_resnet50_feature/'
 # data_root_val = data_root
 ann_file_train = 'data/TruNet/train_meta.json'
 ann_file_val = 'data/TruNet/val_meta.json'
@@ -27,7 +27,7 @@ ann_file_test = 'data/TruNet/val_meta.json'
 # ann_file_val = ann_file_train
 # ann_file_test = ann_file_train
 
-work_dir = 'work_dirs/bsn_temporalx4096_1x1_70e_trunet_feature/'
+work_dir = 'work_dirs/bsn_temporalx2048_1x16_70e_trunet_feature/'
 pgm_proposals_dir = f'{work_dir}/pgm_proposals/'
 pgm_features_dir = f'{work_dir}/pgm_features/'
 
@@ -100,7 +100,7 @@ data = dict(
 # optimizer = dict(
 #     type='Adam', lr=0.01, weight_decay=0.00001)  # this lr is used for 1 gpus
 optimizer = dict(
-    type='SGD', lr=0.001 * 1 * 1 * 1 / 256, momentum=0.9, weight_decay=0.0005)
+    type='SGD', lr=0.001 * 1 * 2 * 8 / 256, momentum=0.9, weight_decay=0.0005)
 
 optimizer_config = dict(grad_clip=None)
 # learning policy

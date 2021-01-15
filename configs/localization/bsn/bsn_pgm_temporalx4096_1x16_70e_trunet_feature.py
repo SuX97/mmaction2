@@ -6,7 +6,7 @@ ann_file_train = 'data/TruNet/train_meta.json'
 ann_file_val = 'data/TruNet/val_meta.json'
 ann_file_test = 'data/TruNet/val_meta.json'
 
-work_dir = 'work_dirs/bsn_temporalx4096_1x1_70e_trunet_feature/'
+work_dir = 'work_dirs/bsn_temporalx4096_1x16_70e_trunet_feature/'
 tem_results_dir = f'{work_dir}/tem_results/'
 pgm_proposals_dir = f'{work_dir}/pgm_proposals/'
 pgm_features_dir = f'{work_dir}/pgm_features/'
