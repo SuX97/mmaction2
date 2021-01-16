@@ -801,8 +801,6 @@ class PEM(BaseLocalizer):
         temporal_iou_loss = torch.sum(
             temporal_iou_loss *
             temporal_iou_weights) / torch.sum(temporal_iou_weights)
-        import pdb
-        pdb.set_trace()
         loss_dict = dict(temporal_iou_loss=temporal_iou_loss)
 
         return loss_dict
