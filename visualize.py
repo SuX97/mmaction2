@@ -17,8 +17,6 @@ def draw(direct, train_meta):
         dic = json.load(f)
     csv_files = os.listdir(tem_results)
     files = [file for file in dic.keys() if file + '.csv' in csv_files][:100]
-    # files = [osp.join(tem_results, file)
-    #          for file in os.listdir(tem_results)][:100]
     for file in files:
         info = dic[file]
         file = osp.join(tem_results, file + '.csv')
