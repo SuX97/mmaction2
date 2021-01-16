@@ -36,14 +36,14 @@ def generate_candidate_proposals(video_list,
     if tem_results_ext != '.csv':
         raise NotImplementedError('Only support csv format now.')
 
-    tscale = temporal_scale
-    tgap = 1. / tscale
     proposal_dict = {}
     for video_index in video_list:
         video_name = video_infos[video_index]['video_name']
         tem_path = osp.join(tem_results_dir, video_name + tem_results_ext)
         tem_results = np.loadtxt(
             tem_path, dtype=np.float32, delimiter=',', skiprows=1)
+        tscale = len(tem_results)
+        tgap = 1. / tscale
         start_scores = tem_results[:, 1]
         end_scores = tem_results[:, 2]
 
