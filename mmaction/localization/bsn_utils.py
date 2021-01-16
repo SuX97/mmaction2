@@ -122,8 +122,7 @@ def generate_candidate_proposals(video_list,
         new_props = np.concatenate((new_props, new_ioa_list), axis=1)
         proposal_dict[video_name] = new_props
         if result_dict is not None:
-            import pdb
-            pdb.set_trace()
+            print(new_props.shape)
             result_dict[video_name] = new_props
     return proposal_dict
 
