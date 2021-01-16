@@ -1,7 +1,7 @@
 # dataset settings
 dataset_type = 'TruNetDataset'
-data_root = 'data/TruNet/train_mean_2000/'
-data_root_val = 'data/TruNet/val_mean_2000/'
+data_root = 'data/TruNet/train_feature/'
+data_root_val = 'data/TruNet/val_feature/'
 ann_file_train = 'data/TruNet/train_meta.json'
 ann_file_val = 'data/TruNet/val_meta.json'
 ann_file_test = 'data/TruNet/val_meta.json'
@@ -13,7 +13,7 @@ pgm_features_dir = f'{work_dir}/pgm_features/'
 
 temporal_scale = 2000
 pgm_proposals_cfg = dict(
-    pgm_proposals_thread=8, temporal_scale=temporal_scale, peak_threshold=0.5)
+    pgm_proposals_thread=8, temporal_scale=temporal_scale, peak_threshold=0.9)
 pgm_features_test_cfg = dict(
     pgm_features_thread=4,
     top_k=1000,
