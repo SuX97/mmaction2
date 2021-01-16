@@ -48,16 +48,24 @@ def train_bsn():
     flag = False
     if tem_train or flag:
         flag = True
-        os.system(tem_cmd)
+        status = os.system(tem_cmd)
+        if status != 0:
+            return
         os.system(mv_tem)
     if tem or flag:
         flag = True
-        os.system(tem_gen)
+        status = os.system(tem_gen)
+        if status != 0:
+            return
     if pgm or flag:
         flag = True
-        os.system(pgm_cmd)
+        status = os.system(pgm_cmd)
+        if status != 0:
+            return
     if pem or flag:
-        os.system(pem_cmd)
+        status = os.system(pem_cmd)
+        if status != 0:
+            return
         os.system(mv_pem)
 
 
@@ -104,13 +112,19 @@ def evaluate_bsn():
     flag = False
     if tem or flag:
         flag = True
-        os.system(tem_gen)
+        status = os.system(tem_gen)
+        if status != 0:
+            return
     if pgm or flag:
         flag = True
-        os.system(pgm_cmd)
+        status = os.system(pgm_cmd)
+        if status != 0:
+            return
     if pem or flag:
         flag = True
-        os.system(pem_gen)
+        status = os.system(pem_gen)
+        if status != 0:
+            return
     if mAP or flag:
         os.system(eval_cmd)
 
