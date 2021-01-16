@@ -1,6 +1,7 @@
 import json
 import os
 import os.path as osp
+import argparse
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -89,5 +90,9 @@ if __name__ == '__main__':
     #      'data/TruNet/train_meta.json')
     # draw('work_dirs/bsn_400x100_32x3_20e_activitynet_feature',
     #      'data/ActivityNet/anet_anno_train.json')
-    draw('work_dirs/bsn_2000x4096_32x3_70e_trunet_feature',
-         'data/TruNet/train_meta.json')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dir', type=str)
+    parser.add_argument('--anno', type=str)
+    args = parser.parse_args()
+    direct, anno = args.dir, args.anno
+    draw(direct, anno)
