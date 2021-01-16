@@ -395,9 +395,6 @@ class _TEM_(BaseLocalizer):
         match_score_start_list = []
         match_score_end_list = []
 
-        self.anchors_tmins, self.anchors_tmaxs = self._temporal_anchors(
-            temporal_dim)
-
         for every_gt_bbox in gt_bbox:
             gt_tmins = every_gt_bbox[:, 0].cpu().numpy()
             gt_tmaxs = every_gt_bbox[:, 1].cpu().numpy()
@@ -451,8 +448,8 @@ class _TEM_(BaseLocalizer):
                 video_meta=None,
                 return_loss=True):
         """Define the computation performed at every call."""
-        # import pdb
-        # pdb.set_trace()
+        self.anchors_tmins, self.anchors_tmaxs = self._temporal_anchors(
+            raw_feature.shape[-1])
         if return_loss:
             label_action, label_start, label_end = (
                 self.generate_labels(gt_bbox, raw_feature.shape[-1]))
