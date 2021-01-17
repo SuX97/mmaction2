@@ -100,7 +100,7 @@ data = dict(
 # optimizer = dict(
 #     type='Adam', lr=0.01, weight_decay=0.00001)  # this lr is used for 1 gpus
 optimizer = dict(
-    type='SGD', lr=0.001 * 64 * 2 * 1 / 256, momentum=0.9, weight_decay=0.0005)
+    type='SGD', lr=0.001 * 64 * 1 * 1 / 256, momentum=0.9, weight_decay=0.0005)
 
 optimizer_config = dict(grad_clip=None)
 # learning policy
