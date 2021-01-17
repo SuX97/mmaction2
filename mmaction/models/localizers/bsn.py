@@ -622,11 +622,11 @@ class TEM(BaseLocalizer):
             gt_tmins = every_gt_bbox[:, 0].cpu().numpy()
             gt_tmaxs = every_gt_bbox[:, 1].cpu().numpy()
 
-            # gt_lens = gt_tmaxs - gt_tmins
-            # gt_len_pad = np.maximum(1. / self.temporal_dim,
-            #                         self.boundary_ratio * gt_lens)
+            gt_lens = gt_tmaxs - gt_tmins
+            gt_len_pad = np.maximum(1. / self.temporal_dim,
+                                    self.boundary_ratio * gt_lens)
             # gt_len_pad = 2. / self.temporal_dim
-            gt_len_pad = 0
+            # gt_len_pad = 0
 
             gt_start_bboxs = np.stack(
                 (gt_tmins - gt_len_pad / 2, gt_tmins + gt_len_pad / 2), axis=1)

@@ -11,6 +11,7 @@ def generate_candidate_proposals(video_list,
                                  temporal_scale,
                                  peak_threshold,
                                  gap=0.1,
+                                 scale=2,
                                  tem_results_ext='.csv',
                                  result_dict=None):
     """Generate Candidate Proposals with given temporal evalutation results.
@@ -51,20 +52,28 @@ def generate_candidate_proposals(video_list,
         max_start = max(start_scores)
         max_end = max(end_scores)
 
+        # start_bins = np.zeros(len(start_scores))
+        # start_bins[[0, -1]] = 1
+        # end_bins = np.zeros(len(end_scores))
+        # end_bins[[0, -1]] = 1
+        # for idx in range(1, tscale - 1):
+        # if start_scores[idx] > (start_scores[ # noqa
+        #         idx + 1] + gap) and start_scores[idx] > (start_scores[idx - 1] + gap): # noqa
+        #     start_bins[idx] = 1 # noqa
+        # elif start_scores[idx] > (peak_threshold * max_start): # noqa
+        #     start_bins[idx] = 1 # noqa
+        # if end_scores[idx] > (end_scores[ # noqa
+        #         idx + 1] + gap) and end_scores[idx] > (end_scores[idx - 1] + gap): # noqa
+        #     end_bins[idx] = 1 # noqa
+        # elif end_scores[idx] > (peak_threshold * max_end): # noqa
+        #     end_bins[idx] = 1 # noqa
+
         start_bins = np.zeros(len(start_scores))
-        start_bins[[0, -1]] = 1
         end_bins = np.zeros(len(end_scores))
-        end_bins[[0, -1]] = 1
-        for idx in range(1, tscale - 1):
-            if start_scores[idx] > (start_scores[
-                    idx + 1] + gap) and start_scores[idx] > (start_scores[idx - 1] + gap):
+        for idx in range(tscale):
+            if start_scores[idx] > (peak_threshold * max_start):
                 start_bins[idx] = 1
-            elif start_scores[idx] > (peak_threshold * max_start):
-                start_bins[idx] = 1
-            if end_scores[idx] > (end_scores[
-                    idx + 1] + gap) and end_scores[idx] > (end_scores[idx - 1] + gap):
-                end_bins[idx] = 1
-            elif end_scores[idx] > (peak_threshold * max_end):
+            if end_scores[idx] > (peak_threshold * max_end):
                 end_bins[idx] = 1
 
         tmin_list = []
@@ -79,12 +88,19 @@ def generate_candidate_proposals(video_list,
                 tmax_list.append(tgap / 2 + tgap * idx)
                 tmax_score_list.append(end_scores[idx])
 
+        # new_props = []
+        # for tmax, tmax_score in zip(tmax_list, tmax_score_list):
+        #     for tmin, tmin_score in zip(tmin_list, tmin_score_list):
+        #         if tmin >= tmax:
+        #             break
+        #         new_props.append([tmin, tmax, tmin_score, tmax_score])
         new_props = []
         for tmax, tmax_score in zip(tmax_list, tmax_score_list):
             for tmin, tmin_score in zip(tmin_list, tmin_score_list):
                 if tmin >= tmax:
                     break
-                new_props.append([tmin, tmax, tmin_score, tmax_score])
+                if (tmax - tmin) > tgap * (3 / 80 * 2000) * scale:
+                    new_props.append([tmin, tmax, tmin_score, tmax_score])
 
         new_props = np.stack(new_props)
 
