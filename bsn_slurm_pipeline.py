@@ -143,7 +143,7 @@ if __name__ == '__main__':
     parser.add_argument('--train', action='store_true')
 
     parser.add_argument('--tem-train', action='store_true')
-    parser.add_argument('--tem-gen', action='store_true')
+    parser.add_argument('--tem', action='store_true')
     parser.add_argument('--pgm', action='store_true')
     parser.add_argument('--pem', action='store_true')
     parser.add_argument('--map', action='store_true')
@@ -153,7 +153,7 @@ if __name__ == '__main__':
                                                  args.port)
     shape, batch, epoch, dataset, train = (args.shape, args.batch, args.epoch,
                                            args.dataset, args.train)
-    tem_train, tem, pgm, pem, mAP = (args.tem_train, args.tem_gen, args.pgm,
+    tem_train, tem, pgm, pem, mAP = (args.tem_train, args.tem, args.pgm,
                                      args.pem, args.map)
     if train:
         train_bsn()
