@@ -1,8 +1,13 @@
 # model settings
+# model = dict(
+#     type='_TEM_',
+#     temporal_dim=2000,
+#     boundary_ratio=0.1,
+#     tem_feat_dim=4096,
+#     tem_hidden_dim=512,
+#     tem_match_threshold=0.5)
 model = dict(
-    type='_TEM_',
-    temporal_dim=2000,
-    boundary_ratio=0.1,
+    type='SnippetTEM',
     tem_feat_dim=4096,
     tem_hidden_dim=512,
     tem_match_threshold=0.5)
@@ -10,7 +15,7 @@ model = dict(
 train_cfg = None
 test_cfg = dict(average_clips='score')
 # dataset settings
-dataset_type = 'TruNetDataset'
+dataset_type = 'SnippetDataset'
 data_root = 'data/TruNet/train_feature/'
 # data_root_val = 'data/TruNet/val_feature/'
 data_root_val = data_root
@@ -20,11 +25,11 @@ ann_file_train = 'data/TruNet/train_meta.json'
 ann_file_val = ann_file_train
 ann_file_test = ann_file_train
 
-work_dir = 'work_dirs/bsn_temporalx4096_1x6_70e_trunet_feature/'
+work_dir = 'work_dirs/tem_snippet/'
 tem_results_dir = f'{work_dir}/tem_results/'
 
 test_pipeline = [
-    dict(type='LoadTruNetLocalizationFeature'),
+    dict(type='LoadSnippetLocalizationFeature'),
     dict(
         type='Collect',
         keys=['raw_feature'],
@@ -33,31 +38,35 @@ test_pipeline = [
     dict(type='ToTensor', keys=['raw_feature'])
 ]
 train_pipeline = [
-    dict(type='LoadTruNetLocalizationFeature'),
-    dict(type='GenerateTruNetLocalizationLabels'),
+    dict(type='LoadSnippetLocalizationFeature'),
+    # dict(type='GenerateSnippetLocalizationLabels'),
     dict(
         type='Collect',
-        keys=['raw_feature', 'gt_bbox'],
+        keys=['raw_feature', 'label_start', 'label_action', 'label_end'],
         meta_name='video_meta',
         meta_keys=['video_name']),
-    dict(type='ToTensor', keys=['raw_feature', 'gt_bbox']),
-    dict(type='ToDataContainer', fields=[dict(key='gt_bbox', stack=False)])
+    dict(type='ToTensor', keys=['raw_feature', 'label_start', 'label_action', 'label_end']),
+    dict(type='ToDataContainer', fields=[dict(key='label_start', stack=False),
+                                         dict(key='label_action', stack=False),
+                                         dict(key='label_end', stack=False)])
 ]
 val_pipeline = [
     dict(type='LoadTruNetLocalizationFeature'),
-    dict(type='GenerateTruNetLocalizationLabels'),
+    # dict(type='GenerateTruNetLocalizationLabels'),
     dict(
         type='Collect',
-        keys=['raw_feature', 'gt_bbox'],
+        keys=['raw_feature', 'label_start', 'label_action', 'label_end'],
         meta_name='video_meta',
         meta_keys=['video_name']),
-    dict(type='ToTensor', keys=['raw_feature', 'gt_bbox']),
-    dict(type='ToDataContainer', fields=[dict(key='gt_bbox', stack=False)])
+    dict(type='ToTensor', keys=['raw_feature', 'label_start', 'label_action', 'label_end']),
+    dict(type='ToDataContainer', fields=[dict(key='label_start', stack=False),
+                                        dict(key='label_action', stack=False),
+                                        dict(key='label_end', stack=False)])
 ]
 
 data = dict(
-    videos_per_gpu=1,
-    workers_per_gpu=1,
+    videos_per_gpu=8,
+    workers_per_gpu=0,
     train_dataloader=dict(drop_last=True),
     val_dataloader=dict(videos_per_gpu=1),
     test_dataloader=dict(videos_per_gpu=1),
@@ -79,7 +88,7 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type='SGD', lr=0.001 * 1 * 1 * 6 / 256, momentum=0.9,
+    type='SGD', lr=0.1, momentum=0.9,
     weight_decay=0.0005)  # batch_size
 
 optimizer_config = dict(grad_clip=None)
