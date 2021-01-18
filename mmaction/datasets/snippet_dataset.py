@@ -41,24 +41,27 @@ class SnippetDataset(TruNetDataset):
 
         self.snippet_infos = shuf(self.neg_snippets + self.pos_snippets)
             
-def _assign(self, start, end, video_info):
-    label = {
-            'action'=np.zeros(self.snippet_length),
-            'start': np.zeros(self.snippet_length),
-            'end': np.zeros(self.snippet_length),
-            'neg': True
-            }
-    for segment in video_info['annotations']:
-        if max(start, segment[0]) <= min(end, segment[1]):
-            # intersecting
-            start_idx = int(ceil(max(start, segment[0])))
-            end_idx = int(floor(min(end, segment[1])))
-            label['start'][start_idx] = 1.0
-            label['end'][end_idx] = 1.0
-            label['action'][start_idx + 1 : end_idx] = 1.0
-            label['neg'] = False
-            return label
-    return label
+    @staticmethod
+    def _assign(start, end, video_info):
+        label = {
+                'label_action': 0.0,
+                'label_start': 0.0,
+                'label_end': 0.0,
+                'neg': True
+                }
+        for segment in video_info['annotations']:
+            center = (start + end) // 2
+            if center == segment[0]:
+                label['label_start'] = 1.0
+            elif center == segment[1]:
+                label['label_end'] = 1.0
+            elif segment[0] < center < segment[1]:
+                label['action'] = 1.0
+            if any(label['label_start'] != 0., label['label_end'] != 0., label['label_action'] != 0):
+                label['neg'] = False
+                break
+
+        return label
 
     def prepare_test_frames(self, idx):
         """Prepare the frames for testing given the index."""

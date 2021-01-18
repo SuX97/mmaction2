@@ -1680,34 +1680,34 @@ class GenerateTruNetLocalizationLabels:
         return results
 
 
-@PIPELINES.register_module()
-class GenerateSnippetLocalizationLabels:
+# @PIPELINES.register_module()
+# class GenerateSnippetLocalizationLabels:
 
-    def __call__(self, results):
-        """Perform the GenerateLocalizationLabels loading.
+#     def __call__(self, results):
+#         """Perform the GenerateLocalizationLabels loading.
 
-        Args:
-            results (dict): The resulting dict to be modified and passed
-                to the next transform in pipeline.
-        """
-        # video_frame = results['duration_frame']
-        video_second = results['duration_second']
-        # feature_frame = results['feature_frame']
-        # corrected_second = float(feature_frame) / video_frame * video_second
-        annotations = results['annotations']
+#         Args:
+#             results (dict): The resulting dict to be modified and passed
+#                 to the next transform in pipeline.
+#         """
+#         # video_frame = results['duration_frame']
+#         video_second = results['duration_second']
+#         # feature_frame = results['feature_frame']
+#         # corrected_second = float(feature_frame) / video_frame * video_second
+#         annotations = results['annotations']
 
-        gt_bbox = []
+#         gt_bbox = []
 
-        for annotation in annotations:
-            current_start = max(
-                min(1, annotation['segment'][0] / video_second), 0)
-            current_end = max(
-                min(1, annotation['segment'][1] / video_second), 0)
-            gt_bbox.append([current_start, current_end])
+#         for annotation in annotations:
+#             current_start = max(
+#                 min(1, annotation['segment'][0] / video_second), 0)
+#             current_end = max(
+#                 min(1, annotation['segment'][1] / video_second), 0)
+#             gt_bbox.append([current_start, current_end])
 
-        gt_bbox = np.array(gt_bbox)
-        results['gt_bbox'] = gt_bbox
-        return results
+#         gt_bbox = np.array(gt_bbox)
+#         results['gt_bbox'] = gt_bbox
+#         return results
 @PIPELINES.register_module()
 class LoadProposals:
     """Loading proposals with given proposal results.
