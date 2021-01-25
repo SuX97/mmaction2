@@ -86,10 +86,7 @@ class Recognizer2D(BaseRecognizer):
         Returns:
             Tensor: Class score.
         """
-        batches = imgs.shape[0]
-        imgs = imgs.reshape((-1, ) + imgs.shape[2:])
-        num_segs = imgs.shape[0] // batches
-
+        num_segs = 1
         x = self.extract_feat(imgs)
         if hasattr(self, 'neck'):
             x = [

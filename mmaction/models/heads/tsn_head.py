@@ -77,7 +77,7 @@ class TSNHead(BaseHead):
             # [N * num_segs, in_channels, 1, 1]
         x = x.reshape((-1, num_segs) + x.shape[1:])
         # [N, num_segs, in_channels, 1, 1]
-        x = self.consensus(x)
+        # x = self.consensus(x)
         # [N, 1, in_channels, 1, 1]
         x = x.squeeze(1)
         # [N, in_channels, 1, 1]
