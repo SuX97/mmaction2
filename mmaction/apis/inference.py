@@ -124,13 +124,16 @@ def inference_recognizer(model,
     if next(model.parameters()).is_cuda:
         # scatter to specified GPU
         data = scatter(data, [device])[0]
-
+    import numpy as np
+    np.save('input_imgs.npy', data['imgs'].cpu().detach().numpy())
     # forward the model
     with OutputHook(model, outputs=outputs, as_tensor=as_tensor) as h:
         with torch.no_grad():
             scores = model(return_loss=False, **data)[0]
         returned_features = h.layer_outputs if outputs else None
-
+    with open('scores.txt', 'w') as fw:
+        for score in scores:
+            fw.write(f'{score}\n')
     score_tuples = tuple(zip(label, scores))
     score_sorted = sorted(score_tuples, key=itemgetter(1), reverse=True)
 
