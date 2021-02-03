@@ -10,8 +10,9 @@ import torch
 from mmcv.utils import print_log
 from torch.utils.data import Dataset
 
-from ..core import (mean_average_precision, mean_class_accuracy,
-                    mmit_mean_average_precision, top_k_accuracy)
+from ..core import (average_performance, mean_average_precision,
+                    mean_class_accuracy, mmit_mean_average_precision,
+                    top_k_accuracy)
 from .pipelines import Compose
 
 
@@ -163,7 +164,7 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
         metrics = metrics if isinstance(metrics, (list, tuple)) else [metrics]
         allowed_metrics = [
             'top_k_accuracy', 'mean_class_accuracy', 'mean_average_precision',
-            'mmit_mean_average_precision'
+            'mmit_mean_average_precision', 'average_performance'
         ]
 
         for metric in metrics:
@@ -220,6 +221,28 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
                 log_msg = f'\nmean_average_precision\t{mAP:.4f}'
                 print_log(log_msg, logger=logger)
                 continue
+            if metric == 'average_performance':
+                gt_labels = [
+                    self.label2array(self.num_classes, label)
+                    for label in gt_labels
+                ]
+                (CP, CR, CF1, OP, OR, OF1, all_precisions,
+                 all_recalls) = average_performance(results, gt_labels)
+                with open('all_classes_precisions.txt', 'w') as fp:
+                    with open('all_classes_recalls.txt', 'w') as fr:
+                        for cp, cr in zip(all_precisions, all_recalls):
+                            fp.write(f'{cp:.4f}\n')
+                            fr.write(f'{cr:.4f}\n')
+
+                log_msg = (f'\nCP:\t{CP:.4f}\nCR:\t{CR:.4f}\nCF1:\n' +
+                           f'{CF1:.4f}\nOP:\t{OP:.4f}\nOR:\t{OR:.4f}' +
+                           f'\nOF1:\t{OF1:.4f}' +
+                           f'\nallP:\n{all_precisions}' +
+                           f'\nallR:\n{all_recalls}')
+                print_log(log_msg, logger=logger)
+                eval_results[
+                    'average_performance_all_precisions'] = all_precisions
+                eval_results['average_performance_all_recalss'] = all_recalls
 
         return eval_results
 
