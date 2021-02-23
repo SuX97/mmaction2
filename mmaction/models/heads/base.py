@@ -24,6 +24,23 @@ class AvgConsensus(nn.Module):
         return x.mean(dim=self.dim, keepdim=True)
 
 
+class MaxConsensus(nn.Module):
+    """Max consensus module.
+
+    Args:
+        dim (int): Decide which dim consensus function to apply.
+            Default: 1.
+    """
+
+    def __init__(self, dim=1):
+        super().__init__()
+        self.dim = dim
+
+    def forward(self, x):
+        """Defines the computation performed at every call."""
+        return x.max(dim=self.dim, keepdim=True)[0]
+
+
 class BaseHead(nn.Module, metaclass=ABCMeta):
     """Base class for head.
 
@@ -76,6 +93,8 @@ class BaseHead(nn.Module, metaclass=ABCMeta):
             dict: A dict containing field 'loss_cls'(mandatory)
             and 'top1_acc', 'top5_acc'(optional).
         """
+        # import pdb
+        # pdb.set_trace()
         losses = dict()
         if labels.shape == torch.Size([]):
             labels = labels.unsqueeze(0)

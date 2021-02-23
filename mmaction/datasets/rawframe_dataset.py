@@ -96,9 +96,11 @@ class RawframeDataset(BaseDataset):
                  start_index=1,
                  modality='RGB',
                  sample_by_class=False,
-                 power=None):
+                 power=None,
+                 one_hot=True):
         self.filename_tmpl = filename_tmpl
         self.with_offset = with_offset
+        self.one_hot = one_hot
         super().__init__(
             ann_file,
             pipeline,
@@ -163,9 +165,10 @@ class RawframeDataset(BaseDataset):
 
         # prepare tensor in getitem
         if self.multi_class:
-            onehot = torch.zeros(self.num_classes)
-            onehot[results['label']] = 1.
-            results['label'] = onehot
+            if self.one_hot:
+                onehot = torch.zeros(self.num_classes)
+                onehot[results['label']] = 1.
+                results['label'] = onehot
 
         return self.pipeline(results)
 

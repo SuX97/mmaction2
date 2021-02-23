@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 
-def average_performance(pred, target, thr=0.5, k=None):
+def average_performance(pred, target, thr=None, k=None):
     """Calculate CP, CR, CF1, OP, OR, OF1, where C stands for per-class
         average, O stands for overall average, P stands for precision, R
         stands for recall and F1 stands for F1-score
@@ -21,8 +21,7 @@ def average_performance(pred, target, thr=0.5, k=None):
     Returns:
         tuple: (CP, CR, CF1, OP, OR, OF1)
     """
-    from pdb import set_trace as st
-    st()
+
     if not isinstance(pred, np.ndarray):
         if isinstance(pred, torch.Tensor):
             pred = pred.detach().cpu().numpy()
@@ -33,7 +32,6 @@ def average_performance(pred, target, thr=0.5, k=None):
             target = target.detach().cpu().numpy()
         elif isinstance(target, list):
             target = np.array(target)
-    st()
 
     if isinstance(pred, torch.Tensor) and isinstance(target, torch.Tensor):
         pred = pred.detach().cpu().numpy()

@@ -240,9 +240,8 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
                            f'\nallP:\n{all_precisions}' +
                            f'\nallR:\n{all_recalls}')
                 print_log(log_msg, logger=logger)
-                eval_results[
-                    'average_performance_all_precisions'] = all_precisions
-                eval_results['average_performance_all_recalss'] = all_recalls
+                eval_results['P'] = OP
+                eval_results['R'] = OR
 
         return eval_results
 

@@ -2,7 +2,7 @@ import torch.nn as nn
 from mmcv.cnn import normal_init
 
 from ..registry import HEADS
-from .base import AvgConsensus, BaseHead
+from .base import AvgConsensus, BaseHead, MaxConsensus
 
 
 @HEADS.register_module()
@@ -43,13 +43,13 @@ class TSNHead(BaseHead):
         if consensus_type == 'AvgConsensus':
             self.consensus = AvgConsensus(**consensus_)
         else:
-            self.consensus = None
+            self.consensus = MaxConsensus(**consensus_)
 
         if self.spatial_type == 'avg':
             # use `nn.AdaptiveAvgPool2d` to adaptively match the in_channels.
             self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         else:
-            self.avg_pool = None
+            self.avg_pool = nn.AdaptiveMaxPool2d((1, 1))
 
         if self.dropout_ratio != 0:
             self.dropout = nn.Dropout(p=self.dropout_ratio)
@@ -77,8 +77,8 @@ class TSNHead(BaseHead):
             # [N * num_segs, in_channels, 1, 1]
         x = x.reshape((-1, num_segs) + x.shape[1:])
         # [N, num_segs, in_channels, 1, 1]
-        import numpy as np
-        np.save('25_frames_scores.npy', x.squeeze().cpu().detach().numpy())
+        # import numpy as np
+        # np.save('25_frames_scores.npy', x.squeeze().cpu().detach().numpy())
         x = self.consensus(x)
         # [N, 1, in_channels, 1, 1]
         x = x.squeeze(1)
